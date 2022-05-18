@@ -28,7 +28,7 @@ export default function Album() {
                 <Toolbar>
                     <CameraIcon sx={{ mr: 2 }} />
                     <Typography variant="h6" color="inherit" noWrap>
-                        Album layout
+                        Album layoutt
                     </Typography>
                 </Toolbar>
             </AppBar>
