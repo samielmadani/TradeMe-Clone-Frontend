@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -11,16 +10,17 @@ import Auctions from "./Pages/Auctions"
 
 function App() {
   return (
-      <Router>
-        <div className={App}>
-            <Navbar />
-          <Routes>
-              <Route path="/" element={<Auctions />} />
-              <Route path="/login" element={<LogIn />} />
-              <Route path="/register" element={<Register/>} />
-          </Routes>
-        </div>
-      </Router>
+      <div className={App}>
+          <Router>
+              <Navbar />
+              <Routes>
+                  <Route path="/" element={<Auctions />} />
+                  <Route path="/login" element={<LogIn />} />
+                  <Route path="/register" element={<Register/>} />
+                  {/*<Route path='/auction/:auctionId' element={<AuctionItemPage />}/>*/}
+              </Routes>
+          </Router>
+      </div>
   );
 }
 
