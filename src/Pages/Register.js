@@ -144,7 +144,7 @@ export default function Register({userId, setUserId}) {
 
     // Validate functions
     const validateEmail = (email) => {
-        if (email == '') {
+        if (email === '') {
             const newValue = {...formErrors, email: 'Required'}
             setFormErrors(newValue)
         } else if (/.+@.+\.[A-Za-z]+$/.test(email)) {
@@ -152,7 +152,7 @@ export default function Register({userId, setUserId}) {
             setFormErrors(newValue)
             return true;
         } else {
-            const newValue = {...formErrors, email: 'Email is not formatted correctly'}
+            const newValue = {...formErrors, email: 'Email poorly formatted'}
             setFormErrors(newValue)
         }
 
@@ -160,7 +160,7 @@ export default function Register({userId, setUserId}) {
     }
 
     const validatePassword = (password) => {
-        if (password == '') {
+        if (password === '') {
             const newValue = {...formErrors, password: 'Required'}
             setFormErrors(newValue)
         } else if (password.length >= 6) {
@@ -202,7 +202,7 @@ export default function Register({userId, setUserId}) {
         const file = e.target.files[0]
         setProfilePhoto(file)
         console.log(file)
-        if (file == undefined) {
+        if (file === undefined) {
             setImageSrc("")
             return
         }
@@ -216,8 +216,8 @@ export default function Register({userId, setUserId}) {
     }
 
     return (
-        <ThemeProvider theme={theme}>
-            <Container component="main" maxWidth="xs">
+        <ThemeProvider theme={theme} >
+            <Container component="main" maxWidth="xs" style={{backgroundColor: 'lightblue', borderRadius: 50, paddingBottom: '40px'}}>
                 <CssBaseline />
                 <Box
                     sx={{
@@ -240,19 +240,22 @@ export default function Register({userId, setUserId}) {
 {/*/////////////////////////////*/}
 
                             <Grid sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}} item xs={12}>
+                                <IconButton>
                                 <Badge
                                     overlap="circular"
-                                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                    anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+
                                     badgeContent={
                                         <>
-                                            <label htmlFor='file-input'>
+                                            <label htmlFor='file-input' style={{opacity: 0.0, height: 200, marginLeft: 176, marginTop: 176, width: 200}}>
                                                 <DriveFileRenameOutlineSharpIcon color='primary' />
                                             </label>
                                             <input hidden type="file" accept=".jpg,.jpeg,.png,.gif" id='file-input' onChange={async (e) => await changeProfile(e)}/>
                                         </>
                                     }>
-                                    <Avatar sx={{height: 100, width: 100}} alt="User" src={imageSrc} />
+                                    <Avatar sx={{height: 200, width: 200}} alt="User" src={imageSrc} />
                                 </Badge>
+                                </IconButton>
                             </Grid>
 
                             <Grid item xs={12}>
@@ -277,8 +280,8 @@ export default function Register({userId, setUserId}) {
 
 
 
-                                    error={formErrors.email !== ''}
-                                    helperText={formErrors.email}
+                                    error={formErrors.fName !== ''}
+                                    helperText={formErrors.fName}
                                     onChange={(e) => validateEmail(e.target.value)}
                                 />
                             </Grid>
@@ -292,8 +295,8 @@ export default function Register({userId, setUserId}) {
                                     autoComplete="family-name"
 
 
-                                    error={formErrors.email !== ''}
-                                    helperText={formErrors.email}
+                                    error={formErrors.lName !== ''}
+                                    helperText={formErrors.lName}
                                     onChange={(e) => validateEmail(e.target.value)}
 
 

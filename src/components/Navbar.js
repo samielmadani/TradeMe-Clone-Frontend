@@ -13,6 +13,8 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Link from '@mui/material/Link';
+import CssBaseline from '@mui/material/CssBaseline';
+
 
 
 const pages = ['Auctions', 'My Auctions', 'Profile'];
@@ -38,6 +40,8 @@ const ResponsiveAppBar = () => {
   };
 
   return (
+      <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
@@ -52,7 +56,7 @@ const ResponsiveAppBar = () => {
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '.3rem',
-                  color: 'inherit',
+                  color: 'white',
                   textDecoration: 'none',
                 }}
             >SENG365</Typography>
@@ -156,6 +160,7 @@ const ResponsiveAppBar = () => {
           </Toolbar>
         </Container>
       </AppBar>
+      </Box>
   );
 };
 export default ResponsiveAppBar;

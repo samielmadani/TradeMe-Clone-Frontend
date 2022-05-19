@@ -2,6 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import Menu from "./components/Menu";
 
 
 import LogIn from "./Pages/LogIn";
@@ -12,7 +13,8 @@ function App() {
   return (
       <div className={App}>
           <Router>
-              <Navbar />
+
+              <Menu />
               <Routes>
                   <Route path="/" element={<Auctions />} />
                   <Route path="/login" element={<LogIn />} />
