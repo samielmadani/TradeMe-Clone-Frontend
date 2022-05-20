@@ -1,7 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
 import Menu from "./components/Menu";
 
 
@@ -19,7 +18,11 @@ function App() {
                   <Route path="/" element={<Auctions />} />
                   <Route path="/login" element={<LogIn />} />
                   <Route path="/register" element={<Register/>} />
+                  {/*<Route path='/create' element={<CreateAuction />}/>*/}
+                  {/*<Route path="/myauctions" element={<MyAuctions/>} />*/}
                   {/*<Route path='/auction/:auctionId' element={<AuctionItemPage />}/>*/}
+                  {/*<Route path="/userProfile" element={<userProfile/>} />*/}
+                  {/*<Route path="/editProfile" element={<editProfile/>} />*/}
               </Routes>
           </Router>
       </div>

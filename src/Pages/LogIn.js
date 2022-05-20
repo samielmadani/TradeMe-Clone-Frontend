@@ -54,6 +54,13 @@ const login = async (email, password) => {
 }
 
 export default function LogIn() {
+    React.useEffect(() => {
+        if (isLoggedIn()) {
+            navigate('/');
+        }
+    })
+
+
     const [formErrors, setFormErrors] = useState({email: '', password: '', global: ''})
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
@@ -74,6 +81,7 @@ export default function LogIn() {
 
         navigate('/')
     };
+
 
     return (
         <ThemeProvider theme={theme}>

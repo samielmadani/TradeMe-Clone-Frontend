@@ -90,6 +90,15 @@ const register = async (firstName, lastName, email, password) => {
 
 
 export default function Register({userId, setUserId}) {
+
+    React.useEffect(() => {
+        if (isLoggedIn()) {
+            navigate('/');
+        }
+    })
+
+
+
     const [formErrors, setFormErrors] = useState({email: '', password: '', fName: '', lName: '', global: ''})
     const [showPassword, setShowPassword] = useState(false)
     const [profilePhoto, setProfilePhoto] = useState(null)

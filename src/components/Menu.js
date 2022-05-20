@@ -28,19 +28,27 @@ import {useEffect, useState} from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 
+
+const drawerWidth = 240;
+let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account', 'Logout'];
+let settings = ['Login', 'Register'];
+
+let categories = ['']
+
+
 const isLoggedIn = () => {
     const userId = Cookies.get('UserId')
     return userId !== undefined && userId !== null
-}
 
+}
 const logout = async () => {
+
     const config = {
         headers: {
             "content-type": "application/json",
             "X-Authorization": Cookies.get('UserToken') || ""
         }
     }
-
     return await axios.post(`http://localhost:4941/api/v1/users/logout`, {}, config)
         .then((response) => {
             Cookies.remove('UserId')
@@ -51,17 +59,18 @@ const logout = async () => {
             console.log(error)
             return error.response.status;
         })
-}
 
+}
 const getProfilePhoto = () => {
     if (!isLoggedIn()) return ""
+
     const userId = parseInt(Cookies.get('UserId') || "") || undefined
-
     return `http://localhost:4941/api/v1/users/${userId}/image`
-}
 
+}
 const getLoggedInUser = async () => {
     if (!isLoggedIn()) return undefined
+
     const userId = parseInt(Cookies.get('UserId') || "") || undefined
 
     const config = {
@@ -69,27 +78,37 @@ const getLoggedInUser = async () => {
             "X-Authorization": Cookies.get('UserToken') || ""
         }
     }
-
     const response = await axios.get(`http://localhost:4941/api/v1/users/${userId}`, config)
     return response
-}
 
-const drawerWidth = 240;
-const pages = ['Auctions', 'My Auctions', 'Profile'];
-let settings = ['Login', 'Register'];
+}
 
 
 export default function ClippedDrawer() {
+
+
+
     const [anchorElUser, setAnchorElUser] = useState(null);
     const [anchorElNav, setAnchorElNav] = useState(null);
     const [userName, setUserName] = useState("User")
     const navigater = useNavigate()
 
-    const handleOpenUserMenu = (event) => {
+
+    const handleSideUserMenu = (event) => {
         if (isLoggedIn()) {
-            settings = ['Profile', 'Account', 'Logout']
+            pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account']
         } else {
-            settings = ['Login', 'Register']
+            pages = ['Browse All', 'Login', 'Register']
+        }
+        setAnchorElUser(event.currentTarget);
+    };
+
+
+    const handleOpenUserMenu = (event) => {
+        if (!isLoggedIn()) {
+            settings = ['Profile', 'Logout']
+        } else {
+            settings = ['Login', 'Register', 'Logout']
         }
         setAnchorElUser(event.currentTarget);
     };
@@ -233,7 +252,7 @@ export default function ClippedDrawer() {
                     </List>
                     <Divider />
                     <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
+                        {pages.map((text, index) => (
                             <ListItem key={text} disablePadding>
                                 <ListItemButton>
                                     <ListItemIcon>
