@@ -54,6 +54,15 @@ const login = async (email, password) => {
 }
 
 export default function LogIn() {
+
+    const regPage = () => {
+        navigate('/register')
+        return
+    };
+
+
+
+
     React.useEffect(() => {
         if (isLoggedIn()) {
             navigate('/');
@@ -153,12 +162,10 @@ export default function LogIn() {
                         </Button>
                         <Grid container>
                             <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
+
                             </Grid>
                             <Grid item>
-                                <Link href="/register" variant="body2">
+                                <Link style={{cursor: "pointer"}}  onClick={async () => await regPage()} variant="body2">
                                     {"Don't have an account? Register"}
                                 </Link>
                             </Grid>

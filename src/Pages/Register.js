@@ -151,6 +151,13 @@ export default function Register({userId, setUserId}) {
         navigate('/')
     };
 
+
+    const loginPage = () => {
+        navigate('/login')
+        return
+    };
+
+
     // Validate functions
     const validateEmail = (email) => {
         if (email === '') {
@@ -377,7 +384,7 @@ export default function Register({userId, setUserId}) {
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <Link href="/login" variant="body2">
+                                <Link style={{cursor: "pointer"}} onClick={async () => await loginPage()} variant="body2">
                                     Already have an account? Log in
                                 </Link>
                             </Grid>

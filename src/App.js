@@ -7,6 +7,7 @@ import Menu from "./components/Menu";
 import LogIn from "./Pages/LogIn";
 import Register from "./Pages/Register"
 import Auctions from "./Pages/Auctions"
+import UserProfile from "./Pages/UserProfile"
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
                   {/*<Route path='/create' element={<CreateAuction />}/>*/}
                   {/*<Route path="/myauctions" element={<MyAuctions/>} />*/}
                   {/*<Route path='/auction/:auctionId' element={<AuctionItemPage />}/>*/}
-                  {/*<Route path="/userProfile" element={<userProfile/>} />*/}
+                  <Route path="/userprofile" element={<UserProfile />} />
                   {/*<Route path="/editProfile" element={<editProfile/>} />*/}
               </Routes>
           </Router>

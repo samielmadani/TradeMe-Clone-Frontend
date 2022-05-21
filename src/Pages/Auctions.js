@@ -22,14 +22,9 @@ import {useEffect, useState} from "react";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-const fetchAuction = async (id) => {
-    return await axios.get(`http://localhost:4941/api/v1/auctions/${id}`)
-        .then((response) => {
-            return response;
-        })
-        .catch((error) => {
-            return error.response;
-        })
+const fetchAuctions = async (config) => {
+    const response =  await axios.get(`http://localhost:4941/api/v1/auctions`, { params: config})
+    return response;
 }
 
 const fetchCategories = async () => {
@@ -161,7 +156,7 @@ export default function Auctions() {
             status: statusString
         }
 
-        const response = await fetchAuction(config)
+        const response = await fetchAuctions(config)
 
         if (response.status !== 200) return
 
@@ -222,6 +217,21 @@ export default function Auctions() {
                         <Stack style={{ width: '100%', display: 'flex', justifyContent: 'center'}}>
                             <TextField fullWidth label="Search" id="search" onChange={handleSearchChange}/>
                             <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(cards.length/ 10 )+1} />
+                            {/*<Autocomplete*/}
+                            {/*    multiple*/}
+                            {/*    id="tags-outlined"*/}
+                            {/*    options={top100Films}*/}
+                            {/*    getOptionLabel={(option) => option.title}*/}
+                            {/*    defaultValue={[top100Films[13]]}*/}
+                            {/*    filterSelectedOptions*/}
+                            {/*    renderInput={(params) => (*/}
+                            {/*        <TextField*/}
+                            {/*            {...params}*/}
+                            {/*            label="filterSelectedOptions"*/}
+                            {/*            placeholder="Favorites"*/}
+                            {/*        />*/}
+                            {/*    )}*/}
+                            {/*/>*/}
                         </Stack>
 
                     </Container>

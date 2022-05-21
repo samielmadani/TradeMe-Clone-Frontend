@@ -17,10 +17,8 @@ import Container from "@mui/material/Container";
 import AdbIcon from "@mui/icons-material/Adb";
 import Link from "@mui/material/Link";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import Avatar from "@mui/material/Avatar";
 import {useNavigate} from "react-router-dom";
@@ -30,10 +28,8 @@ import axios from "axios";
 
 
 const drawerWidth = 240;
-let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account', 'Logout'];
+let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account'];
 let settings = ['Login', 'Register'];
-
-let categories = ['']
 
 
 const isLoggedIn = () => {
@@ -89,37 +85,28 @@ export default function ClippedDrawer() {
 
 
     const [anchorElUser, setAnchorElUser] = useState(null);
-    const [anchorElNav, setAnchorElNav] = useState(null);
     const [userName, setUserName] = useState("User")
     const navigater = useNavigate()
 
 
-    const handleSideUserMenu = (event) => {
+
         if (isLoggedIn()) {
             pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account']
         } else {
             pages = ['Browse All', 'Login', 'Register']
         }
-        setAnchorElUser(event.currentTarget);
-    };
+
 
 
     const handleOpenUserMenu = (event) => {
-        if (!isLoggedIn()) {
+        if (isLoggedIn()) {
             settings = ['Profile', 'Logout']
         } else {
-            settings = ['Login', 'Register', 'Logout']
+            settings = ['Login', 'Register']
         }
         setAnchorElUser(event.currentTarget);
     };
 
-    const handleOpenNavMenu = (event) => {
-        setAnchorElNav(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
-    };
 
     const handleCloseUserMenu = async (location) => {
         setAnchorElUser(null);
@@ -128,7 +115,40 @@ export default function ClippedDrawer() {
             navigate('login')
             return
         }
-        navigate(location)
+
+        if (location === 'Browse All') {
+            navigate('')
+            return
+        }
+
+        if (location === 'Login') {
+            navigate('login')
+            return
+        }
+
+        if (location === 'Register') {
+            navigate('register')
+            return
+        }
+
+        if (location === 'Profile') {
+            navigate('userProfile')
+            return
+        }
+
+        if (location === 'My Auctions') {
+            navigate('myauctions')
+            return
+        }
+
+        if (location === 'Edit Account') {
+            navigate('editProfile')
+            return
+        }
+
+
+
+
     };
 
     const navigate = (location) => {
@@ -139,7 +159,7 @@ export default function ClippedDrawer() {
         const getUser = async () => {
             const response = await getLoggedInUser()
 
-            if (response == undefined || response.status !== 200) return
+            if (response === undefined || response.status !== 200) return
             console.log(response)
             setUserName("test")
         }
@@ -188,7 +208,7 @@ export default function ClippedDrawer() {
                                 textDecoration: 'none',
                             }}
                         >
-                            LOGO
+                            SENG365
                         </Typography>
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
 
@@ -237,23 +257,8 @@ export default function ClippedDrawer() {
                 <Toolbar />
                 <Box sx={{ overflow: 'auto' }}>
                     <List>
-                        {settings.map((text, index) => (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                        <div onClick={(e) => navigate(text)}>{text}</div>
-
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider />
-                    <List>
                         {pages.map((text, index) => (
-                            <ListItem key={text} disablePadding>
+                            <ListItem key={text} disablePadding onClick={async () => await handleCloseUserMenu(text)}>
                                 <ListItemButton>
                                     <ListItemIcon>
                                         {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
@@ -262,6 +267,8 @@ export default function ClippedDrawer() {
                                 </ListItemButton>
                             </ListItem>
                         ))}
+                        <Divider/>
+
                     </List>
                 </Box>
             </Drawer>
