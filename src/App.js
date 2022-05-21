@@ -9,9 +9,14 @@ import Register from "./Pages/Register"
 import Auctions from "./Pages/Auctions"
 import UserProfile from "./Pages/UserProfile"
 
+import New from "./Pages/New"
+import MyAuctions from "./Pages/MyAuctions"
+import Listing from "./Pages/Listing"
+import EditProfile from "./Pages/EditProfile"
+
 function App() {
   return (
-      <div className={App}>
+      <div className={App} >
           <Router>
 
               <Menu />
@@ -19,11 +24,11 @@ function App() {
                   <Route path="/" element={<Auctions />} />
                   <Route path="/login" element={<LogIn />} />
                   <Route path="/register" element={<Register/>} />
-                  {/*<Route path='/create' element={<CreateAuction />}/>*/}
-                  {/*<Route path="/myauctions" element={<MyAuctions/>} />*/}
-                  {/*<Route path='/auction/:auctionId' element={<AuctionItemPage />}/>*/}
+                  <Route path="/new" element={<New />}/>
+                  <Route path="/myauctions" element={<MyAuctions/>} />
+                  <Route path="/listing/:auctionId" element={<Listing />}/>
                   <Route path="/userprofile" element={<UserProfile />} />
-                  {/*<Route path="/editProfile" element={<editProfile/>} />*/}
+                  <Route path="/editprofile" element={<EditProfile/>} />
               </Routes>
           </Router>
       </div>
