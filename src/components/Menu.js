@@ -28,7 +28,7 @@ import axios from "axios";
 
 
 const drawerWidth = 240;
-let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account'];
+let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Profile'];
 let settings = ['Login', 'Register'];
 
 
@@ -91,7 +91,7 @@ export default function ClippedDrawer() {
 
 
         if (isLoggedIn()) {
-            pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Account']
+            pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Profile']
         } else {
             pages = ['Browse All', 'Login', 'Register']
         }
@@ -141,7 +141,7 @@ export default function ClippedDrawer() {
             return
         }
 
-        if (location === 'Edit Account') {
+        if (location === 'Edit Profile') {
             navigate('editProfile')
             return
         }
@@ -217,7 +217,7 @@ export default function ClippedDrawer() {
                         <Box sx={{ flexGrow: 0 }}>
                             <Tooltip title="Open settings">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt={userName} src={getProfilePhoto()} />
+                                    <Avatar src={getProfilePhoto()} />
                                 </IconButton>
                             </Tooltip>
                             <Menu

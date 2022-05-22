@@ -263,7 +263,7 @@ export default function Register({userId, setUserId}) {
 
                                     badgeContent={
                                         <>
-                                            <label htmlFor='file-input' style={{opacity: 0.0, height: 200, marginLeft: 176, marginTop: 176, width: 200}}>
+                                            <label htmlFor='file-input' style={{cursor: "pointer", opacity: 0.0, height: 200, marginLeft: 145, marginTop: 145, width: 200}}>
                                                 <DriveFileRenameOutlineSharpIcon color='primary' />
                                             </label>
                                             <input hidden type="file" accept=".jpg,.jpeg,.png,.gif" id='file-input' onChange={async (e) => await changeProfile(e)}/>
@@ -298,7 +298,7 @@ export default function Register({userId, setUserId}) {
 
                                     error={formErrors.fName !== ''}
                                     helperText={formErrors.fName}
-                                    onChange={(e) => validateEmail(e.target.value)}
+                                    onChange={(e) => validateFirstName(e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -313,7 +313,7 @@ export default function Register({userId, setUserId}) {
 
                                     error={formErrors.lName !== ''}
                                     helperText={formErrors.lName}
-                                    onChange={(e) => validateEmail(e.target.value)}
+                                    onChange={(e) => validateLastName(e.target.value)}
 
 
                                 />
