@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Cookies from "js-cookie";
@@ -85,6 +86,46 @@ const uploadProfilePhoto = async (image) => {
             return error.response.status;
         })
 }
+
+
+const updateUser = async (firstName, lastName, email, password, currentPassword) => {
+    if (!isLoggedIn()) return undefined
+    const userId = parseInt(Cookies.get('UserId') || "") || undefined
+
+    let body;
+    if (password !== undefined && password.length > 0) {
+        body = {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
+            currentPassword: currentPassword
+        }
+    } else {
+        body = {
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+        }
+    }
+
+    console.log(body)
+    const config = {
+        headers: {
+            "X-Authorization": Cookies.get('UserToken') || ""
+        }
+    }
+
+    return await axios.patch(`http://localhost:4941/api/v1/users/${userId}`, body, config)
+        .then((response) => {
+            return response.status;
+        })
+        .catch((error) => {
+            console.log(error)
+            return error.response.status;
+        })
+}
+
 
 
 
@@ -226,15 +267,70 @@ export default function UserProfile() {
 
 
 
+    const handleSubmit = async (event) => {
+        const fields = new FormData(event.currentTarget);
+        const email = fields.get('email') || ""
+        const pass = fields.get('password') || ""
+        const curPass = fields.get('oldPassword') || ""
+        const first = fields.get('firstName') || ""
+        const last = fields.get('lastName') || ""
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+        console.log("im here")
+
+        if (pass.length > 0 && curPass.length < 1) {
+            setFormErrors({...formErrors, currentPassword: 'Required'})
+            return
+        } else {
+            setFormErrors({...formErrors, currentPassword: ''})
+        }
+
+        console.log("im here")
+
+        if (!(validateFirstName(first) && validateLastName(last) && validatePassword(pass) && validateEmail(email))) return;
+        let updateResponse;
+        if (pass.length > 0 && curPass.length > 0) {
+            updateResponse = await updateUser(first, last, email, pass, curPass)
+        } else {
+            console.log("Correct")
+            updateResponse = await updateUser(first, last, email)
+        }
+
+        if (updateResponse === 400) {
+            const newValue = {...formErrors, curPass: 'Incorrect password'}
+            setFormErrors(newValue)
+            return
+        }
+        if (updateResponse === 500) {
+            const newValue = {...formErrors, email: 'Email is already taken'}
+            setFormErrors(newValue)
+            return
+        }
+        if (updateResponse !== 200) {
+            const newValue = {...formErrors, global: 'Something went wrong'}
+            setFormErrors(newValue)
+            return
+        }
+
+        if (profilePhoto !== null && profilePhoto !== undefined) {
+            const uploadImageResponse = await uploadProfilePhoto(profilePhoto)
+            if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
+                const newValue = {...formErrors, global: 'Something went wrong'}
+                setFormErrors(newValue)
+            }
+        } else {
+            const uploadImageResponse = await deleteProfilePhoto()
+            if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
+                const newValue = {...formErrors, global: 'Something went wrong'}
+                setFormErrors(newValue)
+            }
+        }
+
+        navigate('/userProfile')
+        document.location.reload()
     };
+
+
+
 
 
 
@@ -257,7 +353,7 @@ export default function UserProfile() {
                         <Typography component="h1" variant="h5">
                             Edit Profile
                         </Typography>
-                        <Box noValidate sx={{ maxWidth: '100%', mt: 1 }}>
+                        <Box component="form" onSubmit={async (e) => await handleSubmit(e)} sx={{ maxWidth: '100%', mt: 1 }}>
 
                             <Stack spacing={5}>
 
@@ -290,6 +386,7 @@ export default function UserProfile() {
 
                                 <Stack direction="row" alignItems='centre'  justifyContent="end">
                                     <Button
+                                        startIcon={<DeleteIcon />}
                                         fullWidth
                                         color="error"
                                         onDoubleClick={() => {deleteProfilePhoto()
@@ -343,11 +440,11 @@ export default function UserProfile() {
                                     <FormControl  size='small' variant="outlined">
                                         <InputLabel   htmlFor="password">Current Password</InputLabel>
                                         <OutlinedInput
-                                            error={formErrors.password !== ''}
-                                            id="password"
+                                            error={formErrors.currentPassword !== ''}
+                                            id="curPassword"
                                             name="password"
                                             type={showPassword ? 'text' : 'password'}
-                                            onChange={(e) => {validatePassword(e.target.value)}}
+                                            onChange={() => {setFormErrors({...formErrors, currentPassword: ""})}}
                                             endAdornment={
                                                 <InputAdornment position="end">
                                                     <IconButton
@@ -362,7 +459,7 @@ export default function UserProfile() {
                                             }
                                             label="Password"
                                         />
-                                        <FormHelperText error id="component-helper-text">{formErrors.password}</FormHelperText>
+                                        <FormHelperText error>{formErrors.currentPassword}</FormHelperText>
                                     </FormControl>
                                 </Stack>
 
@@ -372,6 +469,7 @@ export default function UserProfile() {
 
 
                             <Button
+                                type='form'
                                 fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2, width: '700px'}}
