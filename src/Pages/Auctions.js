@@ -1,7 +1,5 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Button from '@mui/material/Button';
-import CameraIcon from '@mui/icons-material/PhotoCamera';
+import {useState} from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -10,18 +8,16 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
-import Item from "../components/Item";
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Link from '@mui/material/Link';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
 import axios from "axios";
-import {Autocomplete, CardActionArea, Pagination, TextField} from "@mui/material";
-import {useEffect, useState} from "react";
+import {CardActionArea, Pagination, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import * as PropTypes from "prop-types";
 import Cookies from "js-cookie";
+import Avatar from "@mui/material/Avatar";
+import {logDOM} from "@testing-library/react";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -40,9 +36,9 @@ const getTimeRemaining = (date) => {
 
     const end = new Date(Date.parse(date))
     const cur = new Date()
-    const day = Math.floor(end.getTime() - cur.getTime() / 864000);
-    const hour = Math.floor(end.getTime() - cur.getTime() / 360000);
-    const min = Math.floor(end.getTime() - cur.getTime() / 6000);
+    const day = Math.floor((end.getTime() - cur.getTime()) / 86400000);
+    const hour = Math.floor((end.getTime() - cur.getTime()) / 3600000);
+    const min = Math.floor((end.getTime() - cur.getTime()) / 600000);
 
     if (day > 1) return `closes in ${day} days`
     if (day > 0) return `closes tomorrow`
@@ -58,7 +54,7 @@ const fetchAuctions = async (config) => {
     return response;
 }
 
-const displayAmount = 4
+const displayAmount = 40
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -89,9 +85,13 @@ const isLoggedIn = () => {
 }
 
 const fetchCategories = async () => {
-    const response = await axios.get(`http://localhost:4941/api/v1/auctions/categories`)
-    if (response.status !== 200) return []
-    return response.data
+    return await axios.get(`http://localhost:4941/api/v1/auctions/categories`)
+        .then((response) => {
+            return `http://localhost:4941/api/v1/auctions/categories`
+        })
+        .catch((error) => {
+            return []
+        })
 }
 
 const fetchImage = async (auctionId) => {
@@ -110,6 +110,8 @@ function AvatarChip(props) {
     return null;
 }
 
+
+
 AvatarChip.propTypes = {
     id: PropTypes.any,
     name: PropTypes.string
@@ -118,6 +120,7 @@ export default function Auctions() {
     const [auctions, setAuctions] = useState([])
     const [image, setImage] = useState(undefined)
     const [categories, setCategories] = useState([])
+    const [cats, setCats] = useState([])
     const [pages, setPages] = useState(3)
     const [page, setPage] = useState(1)
     const [sortBy, setSortBy] = useState(sortOptions[0]);
@@ -232,15 +235,17 @@ export default function Auctions() {
     }
 
     React.useEffect(() => {
-        if (!isLoggedIn()) {
-            navigate('/login');
-        }
+
 
         const allItems = async () => {
             getAuctions().then((res) => {
                 setAuctions(res.data.auctions)
 
                 setImage(fetchImage(res.data.auctionId));
+
+                setCats(fetchCategories());
+                console.log(fetchCategories())
+
 
 
             })
@@ -253,7 +258,15 @@ export default function Auctions() {
     }, [setAuctions])
 
     const getCategory = (categoryId) => {
-        return categories.filter((categorie) => categorie.categoryId === categoryId)[0]
+        let messageReturn = ''
+        if (cats !== undefined) {
+            const found = cats.find(e => e.categoryId === categoryId);
+            if (found != undefined) {
+                messageReturn = found.name
+            }
+        }
+
+        return messageReturn;
     }
 
     const handleFilterClick = (category) => {
@@ -277,18 +290,19 @@ export default function Auctions() {
 
 
     const items = () => auctions.map((auction,) =>
-        <Card sx={{boxShadow: 8, width: '100%', maxWidth: 375, minWidth: 200}}>
+        <Grid item  xs={12} sm={6} md={4}>
+        <Card sx={{boxShadow: 8, width: '100%', height: '100%', maxWidth: 375, minWidth: 200}} onClick={() => navigate("/listing/" + auction.auctionId)}>
             <CardActionArea >
                 <CardMedia
                     component="img"
                     height="180"
-                    image={image}
+                    image={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
                     alt={auction.title}
                 />
                 <CardContent style={{paddingBottom: 0}}>
                         <Grid item xs={12}>
                             <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                {auction.category_id !== undefined? <p>{getCategory(auction.category_id).name}</p> : <></>}
+                                <p>Hair Care</p>
                                 <p>{getTimeRemaining(auction.endDate)}</p>
                             </div>
                         </Grid>
@@ -302,7 +316,8 @@ export default function Auctions() {
                                 {auction.description}
                             </Typography>
                             <div style={{marginTop: 10, marginRight: -8, display: 'flex', justifyContent: 'end'}}>
-                                <AvatarChip id={auction.sellerId} name={auction.sellerFirstName + " " + auction.sellerLastName}/>
+                                <Avatar src={""}  />
+                                <Typography>{auction.sellerFirstName + " " + auction.sellerLastName}</Typography>
                             </div>
                         </div>
                 </CardContent>
@@ -331,6 +346,7 @@ export default function Auctions() {
 
             </CardActionArea>
         </Card>
+        </Grid>
     )
 
 
@@ -375,13 +391,10 @@ export default function Auctions() {
                 <Container sx={{ py: 8 }} maxWidth="md">
                     {/* End hero unit */}
                     <Grid container spacing={4}>
-                        {cards.map((card) => (
-                            <Grid item key={card} xs={12} sm={6} md={4}>
+
 
                                 {items()}
 
-                            </Grid>
-                        ))}
                     </Grid>
                 </Container>
             </main>

@@ -52,7 +52,6 @@ const logout = async () => {
             return response.status;
         })
         .catch((error) => {
-            console.log(error)
             return error.response.status;
         })
 
@@ -160,7 +159,6 @@ export default function ClippedDrawer() {
             const response = await getLoggedInUser()
 
             if (response === undefined || response.status !== 200) return
-            console.log(response)
             setUserName("test")
         }
 

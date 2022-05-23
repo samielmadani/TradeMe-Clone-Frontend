@@ -109,7 +109,6 @@ const updateUser = async (firstName, lastName, email, password, currentPassword)
         }
     }
 
-    console.log(body)
     const config = {
         headers: {
             "X-Authorization": Cookies.get('UserToken') || ""
@@ -121,7 +120,6 @@ const updateUser = async (firstName, lastName, email, password, currentPassword)
             return response.status;
         })
         .catch((error) => {
-            console.log(error)
             return error.response.status;
         })
 }
@@ -142,10 +140,10 @@ Form.propTypes = {children: PropTypes.node};
 export default function UserProfile() {
 
 
-    const [formErrors, setFormErrors] = useState({email: '', password: '', cur: '', fName: '', lName: '', global: ''})
-    const [profilePhoto, setProfilePhoto] = useState(null)
-    const [showPassword, setShowPassword] = useState(false)
-    const [imageSrc, setImageSrc] = useState(getProfilePhoto)
+    const [Problems, setProblems] = useState({email: '', password: '', cur: '', fName: '', lName: '', global: ''})
+    const [Picture, setPicture] = useState(null)
+    const [Showing, setShowing] = useState(false)
+    const [PPLink, setPPLink] = useState(getProfilePhoto)
     const ariaLabel = { 'aria-label': 'description' };
 
     const [user, setUser] = useState({email: '', password: '', fName: '', lName: '', global: ''})
@@ -172,15 +170,15 @@ export default function UserProfile() {
     // Validate functions
     const validateEmail = (email) => {
         if (email === '') {
-            const newValue = {...formErrors, email: 'Required'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, email: 'Required'}
+            setProblems(newValue)
         } else if (/.+@.+\.[A-Za-z]+$/.test(email)) {
-            const newValue = {...formErrors, email: ''}
-            setFormErrors(newValue)
+            const newValue = {...Problems, email: ''}
+            setProblems(newValue)
             return true;
         } else {
-            const newValue = {...formErrors, email: 'Email poorly formatted'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, email: 'Email poorly formatted'}
+            setProblems(newValue)
         }
 
         return false;
@@ -188,40 +186,40 @@ export default function UserProfile() {
 
     const validatePassword = (password) => {
         if (password === '') {
-            const newValue = {...formErrors, password: 'Required'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, password: 'Required'}
+            setProblems(newValue)
         } else if (password.length >= 6) {
-            const newValue = {...formErrors, password: ''}
-            setFormErrors(newValue)
+            const newValue = {...Problems, password: ''}
+            setProblems(newValue)
             return true;
         } else {
-            const newValue = {...formErrors, password: 'Password must be at least 6 characters long'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, password: 'Password must be at least 6 characters long'}
+            setProblems(newValue)
             return false;
         }
     }
 
     const validateFirstName = (fName) => {
         if (fName !== '') {
-            const newValue = {...formErrors, fName: ''}
-            setFormErrors(newValue)
+            const newValue = {...Problems, fName: ''}
+            setProblems(newValue)
             return true;
         } else {
             setUser(fName)
-            const newValue = {...formErrors, fName: 'Required'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, fName: 'Required'}
+            setProblems(newValue)
             return false;
         }
     }
 
     const validateLastName = (lName) => {
         if (lName !== '') {
-            const newValue = {...formErrors, lName: ''}
-            setFormErrors(newValue)
+            const newValue = {...Problems, lName: ''}
+            setProblems(newValue)
             return true;
         } else {
-            const newValue = {...formErrors, lName: 'Required'}
-            setFormErrors(newValue)
+            const newValue = {...Problems, lName: 'Required'}
+            setProblems(newValue)
             return false;
         }
     }
@@ -231,19 +229,18 @@ export default function UserProfile() {
 
     const changeProfile = async (e) => {
         const file = e.target.files[0]
-        setProfilePhoto(file)
-        console.log(file)
+        setPicture(file)
         if (file === undefined) {
-            setImageSrc("")
+            setPPLink("")
             return
         }
         if (!imageTypes.includes(file.type)) {
-            setImageSrc("")
+            setPPLink("")
             return
         }
 
         const src = URL.createObjectURL(file)
-        setImageSrc(src)
+        setPPLink(src)
     }
 
 
@@ -268,65 +265,81 @@ export default function UserProfile() {
 
 
     const handleSubmit = async (event) => {
-        const fields = new FormData(event.currentTarget);
-        const email = fields.get('email') || ""
-        const pass = fields.get('password') || ""
-        const curPass = fields.get('oldPassword') || ""
-        const first = fields.get('firstName') || ""
-        const last = fields.get('lastName') || ""
+        event.preventDefault();
+        const data = new FormData(event.currentTarget);
+        const firstName = data.get('firstName');
+        const lastName = data.get('lastName');
+        const newPassword = data.get('password')
+        const email = data.get('email');
+        const password = data.get('currPass');
 
-        console.log("im here")
+        console.log(data)
+        console.log(firstName)
 
-        if (pass.length > 0 && curPass.length < 1) {
-            setFormErrors({...formErrors, currentPassword: 'Required'})
-            return
+
+
+        if (firstName === null || lastName === null || email === null || password === null || newPassword === null) {
+            console.log("here")
+
+            return;
+        }
+
+
+        if (!((/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).test((email.toString().toLowerCase())))){
+
+            return;
+        }
+        if (/^\s+$/ .test(firstName.toString())) {
+
+            return;
+        }
+        if (/^\s+$/ .test(lastName.toString())) {
+
+            return;
+        }
+        if (/^\s+$/ .test(password.toString())) {
+
+            return;
+        }
+        if ((password.toString().length < 6  && password.toString().length > 0 )|| (newPassword.toString().length < 6 && newPassword.toString().length > 0)) {
+
+            return;
+        }
+
+
+        if (Picture !== null && Picture !== undefined) {
+            uploadProfilePhoto(Picture)
+                .then((response) => {
+                    navigate('/userProfile')
+                })
+        }
+        let use = false;
+        let userInfo = {"firstName":firstName.toString(), "lastName": lastName.toString(), "email": email.toString()};
+        let userInfoWithPassword;
+
+        if(password.toString().length > 0 && newPassword.toString().length > 0) {
+            userInfoWithPassword = {
+                "firstName": firstName.toString(),
+                "lastName": lastName.toString(),
+                "email": email.toString(),
+                "password": newPassword.toString(),
+                "currentPassword": password.toString()
+            };
+            use = true;
+        }
+        if (use) {
+            await updateUser(userInfoWithPassword.firstName, userInfoWithPassword.lastName, userInfoWithPassword.email, userInfoWithPassword.password, userInfoWithPassword.currentPassword)
+                .then((response) => {
+                    navigate('/userProfile')
+
+                })
         } else {
-            setFormErrors({...formErrors, currentPassword: ''})
-        }
+            await updateUser(userInfoWithPassword.firstName, userInfoWithPassword.lastName, userInfoWithPassword.email)
+                .then((response) => {
+                    navigate('/userProfile')
 
-        console.log("im here")
-
-        if (!(validateFirstName(first) && validateLastName(last) && validatePassword(pass) && validateEmail(email))) return;
-        let updateResponse;
-        if (pass.length > 0 && curPass.length > 0) {
-            updateResponse = await updateUser(first, last, email, pass, curPass)
-        } else {
-            console.log("Correct")
-            updateResponse = await updateUser(first, last, email)
+                })
         }
-
-        if (updateResponse === 400) {
-            const newValue = {...formErrors, curPass: 'Incorrect password'}
-            setFormErrors(newValue)
-            return
-        }
-        if (updateResponse === 500) {
-            const newValue = {...formErrors, email: 'Email is already taken'}
-            setFormErrors(newValue)
-            return
-        }
-        if (updateResponse !== 200) {
-            const newValue = {...formErrors, global: 'Something went wrong'}
-            setFormErrors(newValue)
-            return
-        }
-
-        if (profilePhoto !== null && profilePhoto !== undefined) {
-            const uploadImageResponse = await uploadProfilePhoto(profilePhoto)
-            if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
-                const newValue = {...formErrors, global: 'Something went wrong'}
-                setFormErrors(newValue)
-            }
-        } else {
-            const uploadImageResponse = await deleteProfilePhoto()
-            if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
-                const newValue = {...formErrors, global: 'Something went wrong'}
-                setFormErrors(newValue)
-            }
-        }
-
-        navigate('/userProfile')
-        document.location.reload()
     };
 
 
@@ -361,8 +374,9 @@ export default function UserProfile() {
                                     <Typography variant="h6">First Name:</Typography>
                                     <TextField size="small" onChange={(e) => {setUser(e.target.value)
                                     validateFirstName(e.target.value)}}
-                                           helperText={formErrors.fName}
-                                               error={formErrors.fName !== ''}
+                                               id="firstName"
+                                           helperText={Problems.fName}
+                                               error={Problems.fName !== ''}
                                            value={user.firstName} inputProps={ariaLabel} />
                                 </Stack>
 
@@ -370,8 +384,9 @@ export default function UserProfile() {
                                     <Typography variant="h6">Last Name:</Typography>
                                     <TextField size="small" onChange={(e) => {setUser(e.target.value)
                                     validateLastName(e.target.value)}}
-                                               helperText={formErrors.lName}
-                                               error={formErrors.lName !== ''}
+                                               id="lastName"
+                                               helperText={Problems.lName}
+                                               error={Problems.lName !== ''}
                                             value={user.lastName} inputProps={ariaLabel} />
                                 </Stack>
 
@@ -379,8 +394,9 @@ export default function UserProfile() {
                                     <Typography variant="h6">Email:</Typography>
                                     <TextField size="small"  onChange={(e) => {setUser(e.target.value)
                                     validateEmail(e.target.value)}}
-                                               helperText={formErrors.email }
-                                               error={formErrors.email !== ''}
+                                               id="email"
+                                               helperText={Problems.email }
+                                               error={Problems.email !== ''}
                                             value={user.email} inputProps={ariaLabel} />
                                 </Stack>
 
@@ -390,7 +406,7 @@ export default function UserProfile() {
                                         fullWidth
                                         color="error"
                                         onDoubleClick={() => {deleteProfilePhoto()
-                                        setImageSrc("")}}
+                                        setPPLink("")}}
                                         variant="contained"
                                         sx={{ mt: 3, mb: 2}}
                                     >
@@ -408,59 +424,57 @@ export default function UserProfile() {
 
                                 <Stack direction="row" spacing={15}  justifyContent="space-between">
                                     <Typography variant="h6">New Password:</Typography>
-                                    <FormControl  size='small' variant="outlined">
-                                        <InputLabel  error={formErrors.password !== ''} htmlFor="password">New Password</InputLabel>
-                                        <OutlinedInput
-                                            error={formErrors.password !== ''}
+                                    <TextField  size='small' variant="outlined"
+                                            error={Problems.password !== ''}
                                             id="password"
                                             name="password"
-                                            type={showPassword ? 'text' : 'password'}
+                                            value={user.password}
+                                            type={Showing ? 'text' : 'password'}
                                             onChange={(e) => {validatePassword(e.target.value)}}
                                             endAdornment={
                                                 <InputAdornment position="end">
                                                     <IconButton
                                                         aria-label="toggle password visibility"
-                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        onClick={() => setShowing(!Showing)}
                                                         onMouseDown={(event) => event.preventDefault()}
                                                         edge="end"
                                                     >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        {Showing ? <VisibilityOff /> : <Visibility />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             }
                                             label="Password"
-                                        />
-                                        <FormHelperText error id="component-helper-text">{formErrors.password}</FormHelperText>
-                                    </FormControl>
+                                        >
+                                        <FormHelperText error id="component-helper-text">{Problems.password}</FormHelperText>
+                                    </TextField>
                                 </Stack>
 
 
                                 <Stack direction="row" spacing={15} marginTop={4} justifyContent="space-between">
                                     <Typography variant="h6">Current Password:</Typography>
-                                    <FormControl  size='small' variant="outlined">
-                                        <InputLabel   htmlFor="password">Current Password</InputLabel>
-                                        <OutlinedInput
-                                            error={formErrors.currentPassword !== ''}
-                                            id="curPassword"
+                                    <TextField  size='small' variant="outlined"
+                                            error={Problems.cur !== ''}
+                                            id="curPass"
                                             name="password"
-                                            type={showPassword ? 'text' : 'password'}
-                                            onChange={() => {setFormErrors({...formErrors, currentPassword: ""})}}
+                                            type={Showing ? 'text' : 'password'}
+                                            onChange={() => {setProblems({...Problems, cur: ""})}}
+                                            value={user.cur}
                                             endAdornment={
                                                 <InputAdornment position="end">
                                                     <IconButton
                                                         aria-label="toggle password visibility"
-                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        onClick={() => setShowing(!Showing)}
                                                         onMouseDown={(event) => event.preventDefault()}
                                                         edge="end"
                                                     >
-                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                        {Showing ? <VisibilityOff /> : <Visibility />}
                                                     </IconButton>
                                                 </InputAdornment>
                                             }
                                             label="Password"
-                                        />
-                                        <FormHelperText error>{formErrors.currentPassword}</FormHelperText>
-                                    </FormControl>
+                                        >
+                                        <FormHelperText error>{Problems.currentPassword}</FormHelperText>
+                                    </TextField>
                                 </Stack>
 
                                 </Box>
@@ -503,7 +517,7 @@ export default function UserProfile() {
                             </>
                         }>
 
-                        <Avatar xs={2}  src={imageSrc} variant="square" style={{
+                        <Avatar xs={2}  src={PPLink} variant="square" style={{
                             flex: 1,
                             objectFit: 'cover',
                             width: '100%',
