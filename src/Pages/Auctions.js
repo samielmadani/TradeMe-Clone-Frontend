@@ -17,20 +17,45 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from "axios";
-import {Autocomplete, Pagination, TextField} from "@mui/material";
+import {Autocomplete, CardActionArea, Pagination, TextField} from "@mui/material";
 import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import * as PropTypes from "prop-types";
+import Cookies from "js-cookie";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+
+const formatNumberToMoney = (number) => {
+    var formatter = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+    });
+
+    return formatter.format(number);
+}
+
+const getTimeRemaining = (date) => {
+
+    const end = new Date(Date.parse(date))
+    const cur = new Date()
+    const day = Math.floor(end.getTime() - cur.getTime() / 864000);
+    const hour = Math.floor(end.getTime() - cur.getTime() / 360000);
+    const min = Math.floor(end.getTime() - cur.getTime() / 6000);
+
+    if (day > 1) return `closes in ${day} days`
+    if (day > 0) return `closes tomorrow`
+    if (hour > 0) return `closes in ${hour} hours`
+    if (min > 0) return `closes in ${min} minutes`
+    if (min < 0) return `Auction closed`
+
+    return "closing soon"
+}
 
 const fetchAuctions = async (config) => {
     const response =  await axios.get(`http://localhost:4941/api/v1/auctions`, { params: config})
     return response;
-}
-
-const fetchCategories = async () => {
-    const response = await axios.get(`http://localhost:4941/api/v1/auctions/categories`)
-    if (response.status !== 200) return []
-    return response.data
 }
 
 const displayAmount = 4
@@ -57,10 +82,41 @@ const sortOptions = [
     'Title descending',
 ];
 
+const isLoggedIn = () => {
+    const userId = Cookies.get('UserId')
+    return userId !== undefined && userId !== null
+
+}
+
+const fetchCategories = async () => {
+    const response = await axios.get(`http://localhost:4941/api/v1/auctions/categories`)
+    if (response.status !== 200) return []
+    return response.data
+}
+
+const fetchImage = async (auctionId) => {
+    return await axios.get(`http://localhost:4941/api/v1/auctions/${auctionId}/image`)
+        .then((response) => {
+            return `http://localhost:4941/api/v1/auctions/${auctionId}/image`
+        })
+        .catch((error) => {
+            return
+        })
+}
+
 const theme = createTheme();
 
+function AvatarChip(props) {
+    return null;
+}
+
+AvatarChip.propTypes = {
+    id: PropTypes.any,
+    name: PropTypes.string
+};
 export default function Auctions() {
     const [auctions, setAuctions] = useState([])
+    const [image, setImage] = useState(undefined)
     const [categories, setCategories] = useState([])
     const [pages, setPages] = useState(3)
     const [page, setPage] = useState(1)
@@ -70,6 +126,9 @@ export default function Auctions() {
     const [status, setStatus] = useState("ANY");
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+
+    const navigate = useNavigate()
+
 
     const handleFilterMenuClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -172,9 +231,26 @@ export default function Auctions() {
         getAuctions(pageNumber, sortByString, search, filtersArray, statusString)
     }
 
-    useEffect(() => {
-        update()
-    }, [])
+    React.useEffect(() => {
+        if (!isLoggedIn()) {
+            navigate('/login');
+        }
+
+        const allItems = async () => {
+            getAuctions().then((res) => {
+                setAuctions(res.data.auctions)
+
+                setImage(fetchImage(res.data.auctionId));
+
+
+            })
+        }
+
+
+
+
+        allItems()
+    }, [setAuctions])
 
     const getCategory = (categoryId) => {
         return categories.filter((categorie) => categorie.categoryId === categoryId)[0]
@@ -200,6 +276,65 @@ export default function Auctions() {
 
 
 
+    const items = () => auctions.map((auction,) =>
+        <Card sx={{boxShadow: 8, width: '100%', maxWidth: 375, minWidth: 200}}>
+            <CardActionArea >
+                <CardMedia
+                    component="img"
+                    height="180"
+                    image={image}
+                    alt={auction.title}
+                />
+                <CardContent style={{paddingBottom: 0}}>
+                        <Grid item xs={12}>
+                            <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                {auction.category_id !== undefined? <p>{getCategory(auction.category_id).name}</p> : <></>}
+                                <p>{getTimeRemaining(auction.endDate)}</p>
+                            </div>
+                        </Grid>
+
+                    <Typography gutterBottom variant="h5" component="div">
+                        {auction.title}
+                    </Typography>
+
+                        <div>
+                            <Typography variant="body2" color="text.secondary" style={{maxHeight: 40, overflow: 'hidden'}}>
+                                {auction.description}
+                            </Typography>
+                            <div style={{marginTop: 10, marginRight: -8, display: 'flex', justifyContent: 'end'}}>
+                                <AvatarChip id={auction.sellerId} name={auction.sellerFirstName + " " + auction.sellerLastName}/>
+                            </div>
+                        </div>
+                </CardContent>
+
+                <CardActions>
+                    <div style={{width: '100%', display: 'flex', justifyContent: 'space-between'}}>
+                        <div>
+                            <p style={{padding: 0, margin: 0, fontSize: 12}}>
+                                {auction.highestBid !== null && auction.highestBid >= auction.reserve? "Reserve (met)" : "Reserve (not met)"}
+                            </p>
+                            <p style={{padding: 0, margin: 0, fontSize: 20}}>
+                                {auction.reserve == undefined || auction.reserve == null? "$0.00" : formatNumberToMoney(auction.reserve)}
+                            </p>
+                        </div>
+
+                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'end'}}>
+                            <p style={{padding: 0, margin: 0, fontSize: 12}}>
+                                {auction.highestBid == null? "Starting Bid" : "Highest Bid"}
+                            </p>
+                            <p style={{padding: 0, margin: 0, fontSize: 20}}>
+                                {auction.highestBid == null? "$0.00" : formatNumberToMoney(auction.highestBid)}
+                            </p>
+                        </div>
+                    </div>
+                </CardActions>
+
+            </CardActionArea>
+        </Card>
+    )
+
+
+
 
 
 
@@ -217,21 +352,7 @@ export default function Auctions() {
                         <Stack style={{ width: '100%', display: 'flex', justifyContent: 'center'}}>
                             <TextField fullWidth label="Search" id="search" onChange={handleSearchChange}/>
                             <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(cards.length/ 10 )+1} />
-                            {/*<Autocomplete*/}
-                            {/*    multiple*/}
-                            {/*    id="tags-outlined"*/}
-                            {/*    options={top100Films}*/}
-                            {/*    getOptionLabel={(option) => option.title}*/}
-                            {/*    defaultValue={[top100Films[13]]}*/}
-                            {/*    filterSelectedOptions*/}
-                            {/*    renderInput={(params) => (*/}
-                            {/*        <TextField*/}
-                            {/*            {...params}*/}
-                            {/*            label="filterSelectedOptions"*/}
-                            {/*            placeholder="Favorites"*/}
-                            {/*        />*/}
-                            {/*    )}*/}
-                            {/*/>*/}
+
                         </Stack>
 
                     </Container>
@@ -257,7 +378,7 @@ export default function Auctions() {
                         {cards.map((card) => (
                             <Grid item key={card} xs={12} sm={6} md={4}>
 
-                                    <Item />
+                                {items()}
 
                             </Grid>
                         ))}

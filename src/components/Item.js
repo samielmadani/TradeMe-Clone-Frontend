@@ -19,52 +19,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import axios from "axios";
 
 
-const fetchImage = async (auctionId) => {
-    return await axios.get(`http://localhost:4941/api/v1/auctions/${auctionId}/image`)
-        .then((response) => {
-            return `http://localhost:4941/api/v1/auctions/${auctionId}/image`
-        })
-        .catch((error) => {
-            // return require("../assets/no_image.png")
-        })
-}
 
-const fetchAuction = async (id) => {
-    return await axios.get(`http://localhost:4941/api/v1/auctions/${id}`)
-        .then((response) => {
-            return response;
-        })
-        .catch((error) => {
-            return error.response;
-        })
-}
-
-const formatNumberToMoney = (number) => {
-    var formatter = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-    });
-
-    return formatter.format(number);
-}
-
-const getTimeRemaining = (date) => {
-
-    const end = new Date(Date.parse(date))
-    const cur = new Date()
-    const day = Math.floor(end.getTime() - cur.getTime() / 864000);
-    const hour = Math.floor(end.getTime() - cur.getTime() / 360000);
-    const min = Math.floor(end.getTime() - cur.getTime() / 6000);
-
-    if (day > 1) return `closes in ${day} days`
-    if (day > 0) return `closes tomorrow`
-    if (hour > 0) return `closes in ${hour} hours`
-    if (min > 0) return `closes in ${min} minutes`
-    if (min < 0) return `Auction closed`
-
-    return "closing soon"
-}
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -77,12 +32,29 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export default function RecipeReviewCard() {
+export default function RecipeReviewCard({auctionId, category, minimized}) {
+    const [auction, setAuction] = useState(undefined)
+    const [image, setImage] = useState(undefined)
+    const navigator = useNavigate()
     const [expanded, setExpanded] = React.useState(false);
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
+
+    useEffect(() => {
+        const getAuction = async () => {
+            const response = await fetchAuction(auctionId)
+            setAuction(response.data)
+            setImage(await fetchImage(response.data.auctionId))
+        }
+
+        getAuction()
+    }, [])
+
+    const clicked = () => {
+        navigator(`/listing/${auction.auctionId}`)
+    }
 
     return (
         <Card sx={{ maxWidth: 345 }}>
