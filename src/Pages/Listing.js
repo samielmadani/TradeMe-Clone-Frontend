@@ -12,12 +12,19 @@ import Button from "@mui/material/Button";
 import Avatar from "@mui/material/Avatar";
 import axios from "axios";
 import {useState} from "react";
+import Divider from "@mui/material/Divider";
+import Card from "@mui/material/Card";
 
 
 const isLoggedIn = () => {
     const userId = Cookies.get('UserId')
     return userId !== undefined && userId !== null
 
+}
+
+const getBids = async (id) => {
+    const response =  await axios.get(`http://localhost:4941/api/v1/auctions/${id}/bids`)
+    return response;
 }
 
 const fetchAuction = async (id) => {
@@ -35,22 +42,25 @@ const fetchAuction = async (id) => {
 
 
 
+
+
 const theme = createTheme();
 
 export default function UserProfile() {
 
 
-    const [auction, setAuction] = useState("")
+    const [auction, setAuction] = useState([])
+    const [bids, setBids] = useState([])
+    const [top, setTop] = useState("")
+
+    const [time, setTime] = useState("")
+    const [day, setDay] = useState("")
 
 
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
     };
 
     React.useEffect(() => {
@@ -58,21 +68,48 @@ export default function UserProfile() {
         const array = window.location.pathname.split("/")
         const getAucId = parseInt(array[2]);
 
-        const det =  (id) => {
-            const details = fetchAuction(getAucId)
-            setAuction(details);
+        fetchAuction(getAucId)
+            .then((res) => {
+
+                const list = res.endDate.split("T")
+                setDay(list[0])
+                setTime(list[1].split(".")[0])
+
+                setAuction(res);
+
+                getBids(getAucId).then((res) => {
+                    setBids(res.data);
+                    console.log(res.data[0])
+                    setTop(bids[0].firstName)
+                }, (error) => {
+
+                })
 
             console.log(auction)
+        }, (error) => {
+
+        })
 
 
 
-        }
 
 
-
-        det(getAucId)
 
     }, [])
+    console.log(top + 'ddd')
+
+    const bidding = () => bids.map((bid) =>
+        <Grid item>
+    <Card>
+        <Avatar sx={{ width: 60, height: 60 }} alt={bid.firstName} src={"http://localhost:4941/api/v1/users/"+bid.bidderId+"/image"} />
+        <p>{bid.firstName} {bid.lastName}</p>
+        {/*<p>{getEndDate(bid.timestamp)}</p>*/}
+        <p>${bid.amount}</p>
+    </Card>
+        </Grid>
+    )
+
+
 
 
     return (
@@ -92,25 +129,54 @@ export default function UserProfile() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            My Account
+                            {auction.title}
                         </Typography>
-                        <Box noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+                        <Box sx={{ mt: 10 }}>
 
                             <Stack spacing={5}>
 
-                                <Stack direction="row" spacing={15} paddingTop={5} justifyContent="space-between">
-                                    <Typography variant="h6">{auction.title}</Typography>
-                                    <Typography >Auction</Typography>
+                                <Stack justifyContent="space-between">
+                                    <Typography >End Date/Time</Typography>
+                                    <Typography variant="h6">Date: {day} / Time: {time}</Typography>
+                                    <Divider/>
+
+                                    <Stack alignItems="centre"  direction="row" spacing={4}>
+                                    <Typography >Seller:</Typography>
+                                    <Avatar src={`http://localhost:4941/api/v1/users/${auction.sellerId}/image`}  />
+                                    <Typography variant="h6">{auction.sellerFirstName + " " + auction.sellerLastName}</Typography>
+                                    </Stack>
+
+                                    <Divider/>
+
+
+                                    <Typography >Description</Typography>
+                                    <Typography variant="h6">{auction.description}</Typography>
+                                    <Divider/>
+
+                                    <Typography >Category</Typography>
+                                    <Typography variant="h6">Hair Care</Typography>
+                                    <Divider/>
+
+                                    <Typography >Reserve</Typography>
+                                    <Typography variant="h6">${auction.reserve}</Typography>
+                                    <Divider/>
+
+                                    <Typography >Bids</Typography>
+                                    <Typography variant="h6">{bids.length}</Typography>
+                                    <Divider/>
                                 </Stack>
 
-                                <Stack direction="row" spacing={15} justifyContent="space-between">
-                                    <Typography variant="h6">Last Name:</Typography>
-                                    <Typography >Auction</Typography>
+                                <Stack justifyContent="space-between">
+                                    <Typography >Bids</Typography>
+                                    <Typography variant="h6">i</Typography>
+                                    <Divider/>
                                 </Stack>
 
-                                <Stack direction="row" spacing={15} justifyContent="space-between">
-                                    <Typography variant="h6">Email:</Typography>
-                                    <Typography >Auction</Typography>
+                                <Stack justifyContent="space-between">
+
+                                    {bidding}
+
+
                                 </Stack>
 
                             </Stack>
@@ -119,9 +185,9 @@ export default function UserProfile() {
                                 fullWidth
 
                                 variant="contained"
-                                sx={{ mt: 3, mb: 2, marginTop: 40, width: '700px'}}
+                                sx={{ mt: 3, mb: 2, width: '700px'}}
                             >
-                                Edit Profile
+                                Make Bid
                             </Button>
 
                         </Box>
@@ -130,13 +196,14 @@ export default function UserProfile() {
                 <Grid xs={4} >
 
                     <Avatar xs={2}   variant="square" style={{
+                        justifyContent: "end",
                         flex: 1,
                         objectFit: 'cover',
                         width: '100%',
-                        height: '100%',
+                        height: 'fit-content',
                         resizeMode: 'contain',
                         backgroundImage: "https://i.stack.imgur.com/aofMr.png"
-                    }}/>
+                    }} src={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}/>
                 </Grid>
             </Grid>
         </ThemeProvider>

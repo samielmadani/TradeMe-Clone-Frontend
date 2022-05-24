@@ -12,14 +12,15 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import axios from "axios";
-import {CardActionArea, Pagination, TextField} from "@mui/material";
+import {CardActionArea, InputLabel, NativeSelect, OutlinedInput, Pagination, Select, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import * as PropTypes from "prop-types";
 import Cookies from "js-cookie";
 import Avatar from "@mui/material/Avatar";
 import {logDOM} from "@testing-library/react";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
 const formatNumberToMoney = (number) => {
@@ -180,10 +181,6 @@ export default function Auctions() {
                 return 'CLOSING_SOON'
             case 'Closing late':
                 return "CLOSING_LAST"
-            case 'Highest bid':
-                return "BIDS_DESC"
-            case 'Lowest bid':
-                return "BIDS_ASC"
             case 'Highest reserve':
                 return "RESERVE_DESC"
             case 'Lowest reserve':
@@ -192,6 +189,11 @@ export default function Auctions() {
                 return "ALPHABETICAL_ASC"
             case 'Title descending':
                 return "ALPHABETICAL_DESC"
+            case 'Highest bid':
+                return "BIDS_DESC"
+            case 'Lowest bid':
+                return "BIDS_ASC"
+
             default:
                 return 'CLOSING_SOON'
         }
@@ -210,7 +212,7 @@ export default function Auctions() {
         }
 
         const config = {
-            startIndex: (pageNumber - 1) * displayAmount,
+            startIndex: (pageNumber - 1) * 10,
             count: displayAmount,
             sortBy: convertToBackEndSort(sortByString),
             q: search,
@@ -293,12 +295,7 @@ export default function Auctions() {
         <Grid item  xs={12} sm={6} md={4}>
         <Card sx={{boxShadow: 8, width: '100%', height: '100%', maxWidth: 375, minWidth: 200}} onClick={() => navigate("/listing/" + auction.auctionId)}>
             <CardActionArea >
-                <CardMedia
-                    component="img"
-                    height="180"
-                    image={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
-                    alt={auction.title}
-                />
+
                 <CardContent style={{paddingBottom: 0}}>
                         <Grid item xs={12}>
                             <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -316,7 +313,7 @@ export default function Auctions() {
                                 {auction.description}
                             </Typography>
                             <div style={{marginTop: 10, marginRight: -8, display: 'flex', justifyContent: 'end'}}>
-                                <Avatar src={""}  />
+                                <Avatar src={`http://localhost:4941/api/v1/users/${auction.sellerId}/image`}  />
                                 <Typography>{auction.sellerFirstName + " " + auction.sellerLastName}</Typography>
                             </div>
                         </div>
@@ -342,8 +339,15 @@ export default function Auctions() {
                             </p>
                         </div>
                     </div>
-                </CardActions>
 
+                </CardActions>
+                <CardMedia
+                    component="img"
+                    height="180"
+                    image={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image" === "" ? "bob" :
+                        "http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
+                    alt={auction.title}
+                />
             </CardActionArea>
         </Card>
         </Grid>
@@ -358,7 +362,6 @@ export default function Auctions() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <main>
-                {/* Hero unit */}
                 <Box>
                     <Container  style={{
                         display: 'flex',
@@ -367,7 +370,8 @@ export default function Auctions() {
                     }} maxWidth={"lg"}>
                         <Stack style={{ width: '100%', display: 'flex', justifyContent: 'center'}}>
                             <TextField fullWidth label="Search" id="search" onChange={handleSearchChange}/>
-                            <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(cards.length/ 10 )+1} />
+
+                            <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(auctions.length/ 10 )+1} />
 
                         </Stack>
 
@@ -384,13 +388,33 @@ export default function Auctions() {
                         >
                             Auctions
                         </Typography>
+                        <FormControl sx={{ m: 1, width: 300, marginLeft: 15 }}>
+                            <InputLabel id="filter">Sorting</InputLabel>
+                            <NativeSelect
+                                labelId="filter"
+                                id="demo-multiple-name"
+                                size="small"
+                                value={sortBy}
+                                onChange={handleSortChanged}
+                                input={<OutlinedInput label="Sort By" />}
+                            >
+                                {sortOptions.map((by) => (
+                                    <option
+                                        key={by}
+                                        value={by}
+                                    >
+                                        {by}
+                                    </option>
+                                ))}
+                            </NativeSelect>
+                        </FormControl>
 
 
                     </Container>
                 </Box>
-                <Container sx={{ py: 8 }} maxWidth="md">
+                <Container sx={{ py: 8 }} maxWidth="lg">
                     {/* End hero unit */}
-                    <Grid container spacing={4}>
+                    <Grid container  rowSpacing={1}>
 
 
                                 {items()}
