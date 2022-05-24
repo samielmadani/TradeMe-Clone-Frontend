@@ -29,6 +29,7 @@ function App() {
                   <Route path="/listing/:auctionId" element={<Listing />}/>
                   <Route path="/userprofile" element={<UserProfile />} />
                   <Route path="/editprofile" element={<EditProfile/>} />
+                  <Route path="*" element={<Auctions/>} />
               </Routes>
           </Router>
       </div>
