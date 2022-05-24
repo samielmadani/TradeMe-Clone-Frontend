@@ -310,12 +310,7 @@ export default function MyAuctions() {
         <Grid item  xs={12} sm={6} md={4}>
             <Card sx={{boxShadow: 8, width: '100%', height: '100%', maxWidth: 375, minWidth: 200}} onClick={() => navigate("/listing/" + auction.auctionId)}>
                 <CardActionArea >
-                    <CardMedia
-                        component="img"
-                        height="180"
-                        image={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
-                        alt={auction.title}
-                    />
+
                     <CardContent style={{paddingBottom: 0}}>
                         <Grid item xs={12}>
                             <div style={{display: 'flex', justifyContent: 'space-between'}}>
@@ -360,6 +355,16 @@ export default function MyAuctions() {
                             </div>
                         </div>
                     </CardActions>
+                    <Avatar
+                            variant="square" style={{
+                            flex: 1,
+                            objectFit: 'cover',
+                            width: '100%',
+                            height: '280px',
+                            resizeMode: 'contain', }}
+
+                            src={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
+                            />
 
                 </CardActionArea>
             </Card>
@@ -405,7 +410,7 @@ export default function MyAuctions() {
 
                     </Container>
                 </Box>
-                <Container sx={{ py: 8 }} maxWidth="md">
+                <Container sx={{ py: 8 }} maxWidth="lg">
                     {/* End hero unit */}
                     <Grid container spacing={4}>
 

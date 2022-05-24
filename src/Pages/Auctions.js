@@ -341,12 +341,15 @@ export default function Auctions() {
                     </div>
 
                 </CardActions>
-                <CardMedia
-                    component="img"
-                    height="180"
-                    image={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image" === "" ? "bob" :
-                        "http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
-                    alt={auction.title}
+                <Avatar
+                    variant="square" style={{
+                    flex: 1,
+                    objectFit: 'cover',
+                    width: '100%',
+                    height: "260px",
+                    resizeMode: 'contain', }}
+
+                    src={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}
                 />
             </CardActionArea>
         </Card>

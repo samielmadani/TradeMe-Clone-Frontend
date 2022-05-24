@@ -58,8 +58,9 @@ const getUserId = () => {
 
 const getProfilePhoto = () => {
     if (!isLoggedIn()) return ""
+
     const userId = parseInt(Cookies.get('UserId') || "") || undefined
-    return `http://localhost:4941/api/v1/users/${userId}/image`;
+    return `http://localhost:4941/api/v1/users/${userId}/image`
 
 }
 
@@ -260,10 +261,6 @@ export default function UserProfile() {
         const logInfo = async () => {
             const log = await getLoggedInUser()
             setUser(log.data)
-            setFname(log.data.firstName)
-            setLname(log.data.lastName)
-            setEmail(log.data.email)
-
         }
 
 
@@ -274,21 +271,18 @@ export default function UserProfile() {
 
 
     const handleSubmit = async () => {
-        console.log(lName)
-        console.log(fName)
-
-        const firstName = fName;
-        const lastName = lName;
-        const newPassword = newPass
-        const email = email;
-        const password = password;
+        const firstName = user.fName;
+        const lastName = user.lName;
+        const newPassword = user.newPass
+        const email = user.email;
+        const password = user.password;
 
         console.log(lastName)
         console.log(firstName)
 
 
 
-        if (firstName === "" || lastName === "" || email === "" || password === null || newPassword === null) {
+        if (firstName === null || lastName === null || email === null || password === null || newPassword === null) {
             console.log("here")
 
             return;
@@ -344,14 +338,12 @@ export default function UserProfile() {
 
                 })
         } else {
-            alert("Hi")
             await updateUser(userInfoWithPassword.firstName, userInfoWithPassword.lastName, userInfoWithPassword.email)
                 .then((response) => {
                     navigate('/userProfile')
 
                 })
         }
-        alert('F')
     };
 
 
@@ -363,7 +355,7 @@ export default function UserProfile() {
         <ThemeProvider theme={theme}>
             <Grid container component="main" sx={{ height: '80vh' }}>
                 <CssBaseline />
-                <Grid item xs={2}/>
+                <Grid xs={2}/>
 
                 <Grid item xs={5.5} component={Paper} elevation={6} square>
                     <Box
@@ -385,13 +377,12 @@ export default function UserProfile() {
                                 <Stack direction="row" spacing={15} paddingTop={5} justifyContent="space-between">
                                     <Typography variant="h6">First Name:</Typography>
                                     <TextField size="small"
-                                               onChange={(e) => {setFname(e.target.value)
-                                                   console.log(fName)
+                                               onChange={(e) => {setFname(  e.target.value)
                                     validateFirstName(e.target.value)}}
                                                id="firstName"
                                            helperText={Problems.fName}
                                                error={Problems.fName !== ''}
-                                           value={fName} />
+                                           value={user.firstName} inputProps={ariaLabel} />
                                 </Stack>
 
                                 <Stack direction="row" spacing={15} justifyContent="space-between">
@@ -402,7 +393,7 @@ export default function UserProfile() {
                                                id="lastName"
                                                helperText={Problems.lName}
                                                error={Problems.lName !== ''}
-                                            value={lName} inputProps={ariaLabel} />
+                                            value={user.lastName} inputProps={ariaLabel} />
                                 </Stack>
 
                                 <Stack direction="row" spacing={15} justifyContent="space-between">
@@ -413,7 +404,7 @@ export default function UserProfile() {
                                                id="email"
                                                helperText={Problems.email }
                                                error={Problems.email !== ''}
-                                            value={email} inputProps={ariaLabel} />
+                                            value={user.email} inputProps={ariaLabel} />
                                 </Stack>
 
                                 <Stack direction="row" alignItems='centre'  justifyContent="end">
@@ -446,7 +437,7 @@ export default function UserProfile() {
                                             name="password"
                                             value={user.password}
                                             type={Showing ? 'text' : 'password'}
-                                            onChange={(e) => {setNewPass(  e.target.value)
+                                            onChange={(e) => {setPassword(  e.target.value)
                                                 validatePassword(e.target.value)}}
                                             endAdornment={
                                                 <InputAdornment position="end">
@@ -474,7 +465,7 @@ export default function UserProfile() {
                                             id="curPass"
                                             name="password"
                                             type={Showing ? 'text' : 'password'}
-                                            onChange={(e) => {setPassword(  e.target.value)
+                                            onChange={(e) => {setUser( {...user, newPass: e.target.value})
                                                 setProblems({...Problems, cur: ""})}}
                                             value={user.cur}
                                             endAdornment={
@@ -513,7 +504,7 @@ export default function UserProfile() {
                         </Box>
                     </Box>
                 </Grid>
-                <Grid item xs={4} >
+                <Grid xs={4} >
 
                     <Badge
                         style={{
@@ -536,7 +527,7 @@ export default function UserProfile() {
                             </>
                         }>
 
-                        <Avatar xs={2}  src={getProfilePhoto} variant="square" style={{
+                        <Avatar xs={2}  src={PPLink} variant="square" style={{
                             flex: 1,
                             objectFit: 'cover',
                             width: '100%',
