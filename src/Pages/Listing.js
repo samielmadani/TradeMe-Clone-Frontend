@@ -24,7 +24,7 @@ const isLoggedIn = () => {
 
 const getBids = async (id) => {
     const response =  await axios.get(`http://localhost:4941/api/v1/auctions/${id}/bids`)
-    return response;
+    return response.data;
 }
 
 const fetchAuction = async (id) => {
@@ -38,12 +38,6 @@ const fetchAuction = async (id) => {
 }
 
 
-
-
-
-
-
-
 const theme = createTheme();
 
 export default function UserProfile() {
@@ -51,7 +45,6 @@ export default function UserProfile() {
 
     const [auction, setAuction] = useState([])
     const [bids, setBids] = useState([])
-    const [top, setTop] = useState("")
 
     const [time, setTime] = useState("")
     const [day, setDay] = useState("")
@@ -78,14 +71,12 @@ export default function UserProfile() {
                 setAuction(res);
 
                 getBids(getAucId).then((res) => {
-                    setBids(res.data);
-                    console.log(res.data[0])
-                    setTop(bids[0].firstName)
+                    setBids(res);
+                    console.log(res)
                 }, (error) => {
 
                 })
 
-            console.log(auction)
         }, (error) => {
 
         })
@@ -96,14 +87,13 @@ export default function UserProfile() {
 
 
     }, [])
-    console.log(top + 'ddd')
+    console.log(bids)
 
     const bidding = () => bids.map((bid) =>
         <Grid item>
     <Card>
-        <Avatar sx={{ width: 60, height: 60 }} alt={bid.firstName} src={"http://localhost:4941/api/v1/users/"+bid.bidderId+"/image"} />
+        <Avatar sx={{ width: 60, height: 60 }} alt={bid.firstName} src={"http://localhost:4941/api/v1/users/"+ bid.bidderId +"/image"} />
         <p>{bid.firstName} {bid.lastName}</p>
-        {/*<p>{getEndDate(bid.timestamp)}</p>*/}
         <p>${bid.amount}</p>
     </Card>
         </Grid>
@@ -193,17 +183,56 @@ export default function UserProfile() {
                         </Box>
                     </Box>
                 </Grid>
-                <Grid xs={4} >
+                <Grid xs={4} style={{maxHeight: '500px'}}>
 
                     <Avatar xs={2}   variant="square" style={{
                         justifyContent: "end",
                         flex: 1,
                         objectFit: 'cover',
                         width: '100%',
+                        verticalAlign: 'middle',
+                        maxHeight: '800px',
                         height: 'fit-content',
                         resizeMode: 'contain',
                         backgroundImage: "https://i.stack.imgur.com/aofMr.png"
                     }} src={"http://localhost:4941/api/v1/auctions/" + auction.auctionId +"/image"}/>
+                </Grid>
+                <Grid xs={2} style={{maxHeight: '500px'}}>
+
+
+                </Grid>
+                <Grid xs={4} >
+                    <Grid item component={Paper} elevation={6} square style={{width: "100%"}}>
+                        <Box
+                            sx={{
+                                my: 8,
+                                mx: 4,
+                                display: 'flex',
+                                width: "800px",
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+
+                            <Box sx={{ mt: 10 }}>
+
+                                <Stack spacing={5}>
+
+
+                                     <Stack justifyContent="space-between">
+
+                                        {bidding}
+
+
+                                    </Stack>
+
+                                </Stack>
+
+
+
+                            </Box>
+                        </Box>
+                    </Grid>
                 </Grid>
             </Grid>
         </ThemeProvider>
