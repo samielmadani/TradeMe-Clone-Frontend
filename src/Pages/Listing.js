@@ -15,6 +15,34 @@ import {useState} from "react";
 import Divider from "@mui/material/Divider";
 import Card from "@mui/material/Card";
 
+const catss = [
+    "h",
+    "Smartphones",
+    "Computers & Laptops",
+    "Books",
+    "CDs",
+    "DVDs",
+    "Motorbikes",
+    "Bicycles",
+    "Farm Equipment",
+    "Jewellery",
+    "Homeware",
+    "Furniture",
+    "Watches",
+    "Instruments",
+    "Electronics",
+    "Office Equipment",
+    "Tablets",
+    "Paintings & Sculptures",
+    "Bulk Items",
+    "Gaming Consoles",
+    "Hair Care",
+    "Perfume",
+    "Clothing",
+    "Lego",
+    "Figurines",
+    "Cars"
+];
 
 const isLoggedIn = () => {
     const userId = Cookies.get('UserId')
@@ -144,7 +172,7 @@ export default function UserProfile() {
                                     <Divider/>
 
                                     <Typography >Category</Typography>
-                                    <Typography variant="h6">Hair Care</Typography>
+                                    <Typography variant="h6"> {catss[auction.categoryId]}</Typography>
                                     <Divider/>
 
                                     <Typography >Reserve</Typography>
@@ -157,8 +185,8 @@ export default function UserProfile() {
                                 </Stack>
 
                                 <Stack justifyContent="space-between">
-                                    <Typography >Bids</Typography>
-                                    <Typography variant="h6">i</Typography>
+                                    <Typography >Bidder List</Typography>
+                                    <Typography variant="h6">No Bidders</Typography>
                                     <Divider/>
                                 </Stack>
 
@@ -201,7 +229,7 @@ export default function UserProfile() {
 
 
                 </Grid>
-                <Grid xs={4} >
+                <Grid xs={8} >
                     <Grid item component={Paper} elevation={6} square style={{width: "100%"}}>
                         <Box
                             sx={{
@@ -213,10 +241,14 @@ export default function UserProfile() {
                                 alignItems: 'center',
                             }}
                         >
+                            <Typography component="h1" variant="h5">
+                                Similar Auctions:
+                            </Typography>
 
-                            <Box sx={{ mt: 10 }}>
+                            <Box sx={{ mt: 10, width: "100%", }}>
 
                                 <Stack spacing={5}>
+
 
 
                                      <Stack justifyContent="space-between">

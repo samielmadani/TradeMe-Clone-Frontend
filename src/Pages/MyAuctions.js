@@ -18,18 +18,13 @@ import * as PropTypes from "prop-types";
 import Cookies from "js-cookie";
 import Avatar from "@mui/material/Avatar";
 import {logDOM} from "@testing-library/react";
+import Button from "@mui/material/Button";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-const formatNumberToMoney = (number) => {
-    var formatter = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0,
-    });
-
-    return formatter.format(number);
+const money = (number) => {
+    return number.toString();
 }
 
 const getTimeRemaining = (date) => {
@@ -203,12 +198,9 @@ export default function MyAuctions() {
         }
     }
 
-    const getAuctions = async (pageNumber, sortByString, search, filtersArray, statusString) => {
+    const getAuctions = async (pageNumber, sortByString,  filtersArray, statusString) => {
         if (pageNumber == undefined) pageNumber = page
-        if (sortByString == undefined) sortByString = sortBy
-        if (search == undefined) search = searchTerm
         if (filtersArray == undefined) filtersArray = filters
-        if (statusString == undefined) statusString = status
 
         const userId = getUserId()
 
@@ -308,7 +300,7 @@ export default function MyAuctions() {
 
     const items = () => auctions.map((auction,) =>
         <Grid item  xs={12} sm={6} md={4}>
-            <Card sx={{boxShadow: 8, width: '100%', height: '100%', maxWidth: 375, minWidth: 200}} onClick={() => navigate("/listing/" + auction.auctionId)}>
+            <Card sx={{boxShadow: 8, width: '100%', height: '100%',backgroundColor: "#1976d2", border: 6, borderColor: "#1976d2", maxWidth: 375, minWidth: 200}} onClick={() => navigate("/listing/" + auction.auctionId)}>
                 <CardActionArea >
 
                     <CardContent style={{paddingBottom: 0}}>
@@ -324,35 +316,52 @@ export default function MyAuctions() {
                         </Typography>
 
                         <div>
-                            <Typography variant="body2" color="text.secondary" style={{maxHeight: 40, overflow: 'hidden'}}>
+                            <Typography variant="body2" color="text.secondary" >
                                 {auction.description}
                             </Typography>
-                            <div style={{marginTop: 10, marginRight: -8, display: 'flex', justifyContent: 'end'}}>
-                                <Avatar src={""}  />
-                                <Typography>{auction.sellerFirstName + " " + auction.sellerLastName}</Typography>
+                            <div>
+                                <Avatar src={`http://localhost:4941/api/v1/users/${auction.sellerId}/image`}  />
+                                <Typography>Seller: {auction.sellerFirstName + " " + auction.sellerLastName}</Typography>
                             </div>
+
+
                         </div>
                     </CardContent>
 
                     <CardActions>
                         <div style={{width: '100%', display: 'flex', justifyContent: 'space-between'}}>
                             <div>
-                                <p style={{padding: 0, margin: 0, fontSize: 12}}>
-                                    {auction.highestBid !== null && auction.highestBid >= auction.reserve? "Reserve (met)" : "Reserve (not met)"}
+                                <p style={{padding: 0, margin: 0, fontSize: 10}}>
+                                    {auction.highestBid == null? "Starting Bid" : "Current Bid"}
                                 </p>
-                                <p style={{padding: 0, margin: 0, fontSize: 20}}>
-                                    {auction.reserve == undefined || auction.reserve == null? "$0.00" : formatNumberToMoney(auction.reserve)}
+                                <p style={{padding: 0, margin: 0, fontSize: 16}}>
+                                    ${auction.highestBid == null? "0" : money(auction.highestBid)}
                                 </p>
+                                <p style={{padding: 0, margin: 0, fontSize: 10}}>
+                                    {auction.highestBid >= auction.reserve ? "Reserve (met)" : "Reserve (not met)"}
+                                </p>
+                                <p style={{padding: 0, margin: 0, fontSize: 16}}>
+                                    ${auction.reserve == undefined || auction.reserve == null? "0" : money(auction.reserve)}
+                                </p>
+
                             </div>
 
-                            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'end'}}>
-                                <p style={{padding: 0, margin: 0, fontSize: 12}}>
-                                    {auction.highestBid == null? "Starting Bid" : "Highest Bid"}
-                                </p>
-                                <p style={{padding: 0, margin: 0, fontSize: 20}}>
-                                    {auction.highestBid == null? "$0.00" : formatNumberToMoney(auction.highestBid)}
-                                </p>
+                            <div >
+                                {(auction.sellerId != getUserId() && getTimeRemaining(auction.endDate) != 'Auction closed') ?
+                                    <Button sx={{border: 2, borderColor: "white", backgroundColor: "blue", color: "white"}} >Bid</Button> : null}
                             </div>
+
+
+                            <div >
+                                {auction.sellerId == getUserId() ?
+                                <Button sx={{border: 2, borderColor: "white", backgroundColor: "green", color: "white"}} >Edit</Button> : null}
+                            </div>
+
+                            <div >
+                                {auction.sellerId == getUserId() ?
+                                    <Button sx={{border: 2, borderColor: "white", backgroundColor: "red", color: "white"}} >Delete</Button> : null}
+                            </div>
+
                         </div>
                     </CardActions>
                     <Avatar
@@ -380,22 +389,13 @@ export default function MyAuctions() {
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <main>
-                {/* Hero unit */}
                 <Box>
-                    <Container  style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }} maxWidth={"lg"}>
-                        <Stack style={{ width: '100%', display: 'flex', justifyContent: 'center'}}>
-                            <TextField fullWidth label="Search" id="search" onChange={handleSearchChange}/>
-                            <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(cards.length/ 10 )+1} />
 
-                        </Stack>
-
-                    </Container>
 
                     <Container maxWidth="sm">
+                        <div >
+                            <Button sx={{marginLeft: 15, fontSize: 24, border: 2, borderColor: "green", backgroundColor: "green", color: "black"}} >Create New Auction</Button>
+                        </div>
                         <Typography
                             paddingTop={4}
                             component="h1"
@@ -406,6 +406,7 @@ export default function MyAuctions() {
                         >
                             My Auctions
                         </Typography>
+
 
 
                     </Container>
@@ -419,6 +420,18 @@ export default function MyAuctions() {
 
                     </Grid>
                 </Container>
+                <Box>
+
+
+                    <Container maxWidth="sm">
+                        <div >
+                            <Button sx={{marginLeft: 15, fontSize: 24, border: 2, borderColor: "green", backgroundColor: "green", color: "black"}} >Create New Auction</Button>
+                        </div>
+
+
+
+                    </Container>
+                </Box>
             </main>
             {/* Footer */}
             <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
