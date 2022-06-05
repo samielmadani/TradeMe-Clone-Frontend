@@ -90,142 +90,117 @@ export default function Register({userId, setUserId}) {
 
     React.useEffect(() => {
         if (loggerCheck()) {
-            navigate('/');
+            navvv('/');
         }
     })
 
 
 
-    const [formErrors, setFormErrors] = useState({email: '', password: '', fName: '', lName: '', global: ''})
+    const [issues, setIssues] = useState({email: '', password: '', fName: '', lName: '', global: ''})
     const [showPassword, setShowPassword] = useState(false)
-    const [profilePhoto, setProfilePhoto] = useState(null)
-    const [imageSrc, setImageSrc] = useState('')
-    const navigate = useNavigate()
+    const [image, setImage] = useState(null)
+    const [linkk, setLinkk] = useState('')
+    const navvv = useNavigate()
 
-    // Submit
     const handleSubmit = async (event) => {
         event.preventDefault();
-        // Get data
         const data = new FormData(event.currentTarget);
         const email = data.get('email') || ""
         const password = data.get('password') || ""
         const firstName = data.get('firstName') || ""
         const lastName = data.get('lastName') || ""
 
-        // Validate forms
-        const emailValid = validateEmail(email)
-        const passwordValid = validatePassword(password)
-        const fNameValid = validateFirstName(firstName)
-        const lNameValid = validateLastName(lastName)
-        const formValid = fNameValid && lNameValid && passwordValid && emailValid;
+        const emailValid = checkEmail(email)
+        const passwordValid = checkPass(password)
+        const fNameValid = checkNameF(firstName)
+        const lNameValid = checkNameL(lastName)
+        const checkk = fNameValid && lNameValid && passwordValid && emailValid;
 
-        if (!formValid) return;
+        if (!checkk) return;
 
-        const registerResponse = await register(firstName, lastName, email, password)
-
-        if (registerResponse === 500) {
-            const newValue = {...formErrors, email: 'Email is already taken'}
-            setFormErrors(newValue)
-            return
+        if (await register(firstName, lastName, email, password) === 500) {
+            return setIssues({...issues, email: 'Email used'})
         }
 
-        const loginResponse = await login(email, password)
-
-        if (loginResponse !== 200) {
-            const newValue = {...formErrors, global: 'Something went wrong'}
-            setFormErrors(newValue)
-            return
+        if (await login(email, password) !== 200) {
+            return setIssues({...issues, global: 'Issue found'})
         }
 
-        if (profilePhoto !== null && profilePhoto !== undefined) {
-            const uploadImageResponse = await putimage(profilePhoto)
-            if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
-                const newValue = {...formErrors, global: 'Something went wrong'}
-                setFormErrors(newValue)
+        if (image !== null && image !== undefined) {
+            const res = await putimage(image)
+            if (res !== 200 && res !== 201) {
+                setIssues({...issues, global: 'Issue found'})
             }
         }
 
-        navigate('/')
+        navvv('/')
     };
 
 
     const loginPage = () => {
-        navigate('/login')
-        return
+        return navvv('/login')
+
     };
 
-
-    // Validate functions
-    const validateEmail = (email) => {
-        if (email === '') {
-            const newValue = {...formErrors, email: 'Required'}
-            setFormErrors(newValue)
-        } else if (/.+@.+\.[A-Za-z]+$/.test(email)) {
-            const newValue = {...formErrors, email: ''}
-            setFormErrors(newValue)
-            return true;
-        } else {
-            const newValue = {...formErrors, email: 'Email poorly formatted'}
-            setFormErrors(newValue)
-        }
-
-        return false;
-    }
-
-    const validatePassword = (password) => {
+    const checkPass = (password) => {
         if (password === '') {
-            const newValue = {...formErrors, password: 'Required'}
-            setFormErrors(newValue)
+            setIssues({...issues, password: 'Required'})
         } else if (password.length >= 6) {
-            const newValue = {...formErrors, password: ''}
-            setFormErrors(newValue)
+            setIssues({...issues, password: ''})
             return true;
         } else {
-            const newValue = {...formErrors, password: 'Password must be at least 6 characters long'}
-            setFormErrors(newValue)
+            setIssues({...issues, password: 'Password must be at least 6 characters long'})
             return false;
         }
     }
 
-    const validateFirstName = (fName) => {
+    const checkNameF = (fName) => {
         if (fName !== '') {
-            const newValue = {...formErrors, fName: ''}
-            setFormErrors(newValue)
+            setIssues({...issues, fName: ''})
             return true;
         } else {
-            const newValue = {...formErrors, fName: 'Required'}
-            setFormErrors(newValue)
+            setIssues({...issues, fName: 'Required'})
             return false;
         }
     }
 
-    const validateLastName = (lName) => {
+    const checkNameL = (lName) => {
         if (lName !== '') {
-            const newValue = {...formErrors, lName: ''}
-            setFormErrors(newValue)
+            setIssues({...issues, lName: ''})
             return true;
         } else {
-            const newValue = {...formErrors, lName: 'Required'}
-            setFormErrors(newValue)
+            setIssues({...issues, lName: 'Required'})
             return false;
         }
     }
+
+    const checkEmail = (email) => {
+        if (email === '') {
+            setIssues({...issues, email: 'Required'})
+            return false;
+        } else if (/.+@.+\.[A-Za-z]+$/.test(email)) {
+            setIssues({...issues, email: ''})
+            return true;
+        } else {
+            setIssues( {...issues, email: 'Email incorrect style'})
+            return false;
+        }
+    }
+
+
 
     const changeProfile = async (e) => {
         const file = e.target.files[0]
-        setProfilePhoto(file)
-        console.log(file)
+        setImage(file)
         if (file === undefined) {
-            setImageSrc("")
+            setLinkk("")
             return
         }
         if (!imageTypes.includes(file.type)) {
-            setImageSrc("")
+            setLinkk("")
             return
         }
-
-        const src = URL.createObjectURL(file)
-        setImageSrc(src)
+        setLinkk(URL.createObjectURL(file))
     }
 
     return (
@@ -248,10 +223,6 @@ export default function Register({userId, setUserId}) {
                     </Typography>
                     <Box component="form" noValidate onSubmit={async (e) => await handleSubmit(e)} sx={{ mt: 3 }}>
                         <Grid container spacing={2}>
-
-
-{/*/////////////////////////////*/}
-
                             <Grid sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}} item xs={12}>
                                 <IconButton>
                                 <Badge
@@ -266,19 +237,17 @@ export default function Register({userId, setUserId}) {
                                             <input hidden type="file" accept=".jpg,.jpeg,.png,.gif" id='file-input' onChange={async (e) => await changeProfile(e)}/>
                                         </>
                                     }>
-                                    <Avatar sx={{height: 200, width: 200}} alt="User" src={imageSrc} />
+                                    <Avatar sx={{height: 200, width: 200}} alt="User" src={linkk} />
                                 </Badge>
                                 </IconButton>
                             </Grid>
 
                             <Grid item xs={12}>
                                 <Typography color='red' variant="body1">
-                                    {formErrors.global}
+                                    {issues.global}
                                 </Typography>
                             </Grid>
 
-
-                            {/*/////////////////////////////*/}
 
 
                             <Grid item xs={12} sm={6}>
@@ -290,12 +259,9 @@ export default function Register({userId, setUserId}) {
                                     id="firstName"
                                     label="First Name"
                                     autoFocus
-
-
-
-                                    error={formErrors.fName !== ''}
-                                    helperText={formErrors.fName}
-                                    onChange={(e) => validateFirstName(e.target.value)}
+                                    error={issues.fName}
+                                    helperText={issues.fName}
+                                    onChange={(e) => checkNameF(e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>
@@ -306,12 +272,9 @@ export default function Register({userId, setUserId}) {
                                     label="Last Name"
                                     name="lastName"
                                     autoComplete="family-name"
-
-
-                                    error={formErrors.lName !== ''}
-                                    helperText={formErrors.lName}
-                                    onChange={(e) => validateLastName(e.target.value)}
-
+                                    error={issues.lName}
+                                    helperText={issues.lName}
+                                    onChange={(e) => checkNameL(e.target.value)}
 
                                 />
                             </Grid>
@@ -323,52 +286,35 @@ export default function Register({userId, setUserId}) {
                                     label="Email Address"
                                     name="email"
                                     autoComplete="email"
-
-
-                                    error={formErrors.email !== ''}
-                                    helperText={formErrors.email}
-                                    onChange={(e) => validateEmail(e.target.value)}
+                                    error={issues.email}
+                                    helperText={issues.email}
+                                    onChange={(e) => checkEmail(e.target.value)}
 
                                 />
                             </Grid>
                             <Grid item xs={12}>
-
-
-                                {/*/////////////////////////////*/}
-
-
-
                                 <FormControl fullWidth variant="outlined">
-                                    <InputLabel required error={formErrors.password !== ''} htmlFor="password">Password</InputLabel>
+                                    <InputLabel required error={issues.password !== ''} htmlFor="password">Password</InputLabel>
                                     <OutlinedInput
                                         required
-                                        error={formErrors.password !== ''}
+                                        error={issues.password !== ''}
                                         id="password"
                                         name="password"
                                         type={showPassword ? 'text' : 'password'}
-                                        onChange={(e) => {validatePassword(e.target.value)}}
+                                        onChange={(e) => {checkPass(e.target.value)}}
                                         endAdornment={
                                             <InputAdornment position="end">
                                                 <IconButton
-                                                    aria-label="toggle password visibility"
                                                     onClick={() => setShowPassword(!showPassword)}
-                                                    onMouseDown={(event) => event.preventDefault()}
-                                                    edge="end"
-                                                >
+                                                    onMouseDown={(event) => event.preventDefault()}>
                                                     {showPassword ? <VisibilityOff /> : <Visibility />}
                                                 </IconButton>
                                             </InputAdornment>
                                         }
                                         label="Password"
                                     />
-                                    <FormHelperText error id="component-helper-text">{formErrors.password}</FormHelperText>
+                                    <FormHelperText error id="component-helper-text">{issues.password}</FormHelperText>
                                 </FormControl>
-
-
-
-                                {/*/////////////////////////////*/}
-
-
                             </Grid>
                         </Grid>
                         <Button

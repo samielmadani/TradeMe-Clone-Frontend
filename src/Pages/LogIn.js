@@ -55,21 +55,18 @@ export default function LogIn() {
         }
     })
 
-    const [formErrors, setFormErrors] = useState({email: '', password: '', global: ''})
+    const [issues, setIssues] = useState({email: '', password: '', global: ''})
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        const email = data.get('email') || ""
-        const password = data.get('password') || ""
-
-        const response = await login(email, password)
+        const info = new FormData(event.currentTarget);
+        const response = await login(info.get('email') || "", info.get('password') || "")
 
         if (response !== 200) {
-            const newErrors = {...formErrors, global: "Incorrect email/password"}
-            setFormErrors(newErrors)
+            const newErrors = {...issues, global: "Email or password are incorrect"}
+            setIssues(newErrors)
             return
         }
 
@@ -97,7 +94,7 @@ export default function LogIn() {
                     </Typography>
                     <Box component="form" onSubmit={async (e) => await handleSubmit(e)} noValidate sx={{ mt: 1 }}>
                         <Typography textAlign='center' color='error' variant="body1">
-                            {formErrors.global}
+                            {issues.global}
                         </Typography>
                         <TextField
                             margin="normal"
@@ -108,17 +105,16 @@ export default function LogIn() {
                             name="email"
                             autoComplete="email"
                             autoFocus
-
-                            error={formErrors.email !== ''}
-                            helperText={formErrors.email}
+                            error={issues.email !== ''}
+                            helperText={issues.email}
                         />
                         <FormControl fullWidth variant="outlined">
-                            <InputLabel required error={formErrors.password !== ''} htmlFor="password">Password</InputLabel>
+                            <InputLabel required error={issues.password !== ''} htmlFor="password">Password</InputLabel>
                             <OutlinedInput
                                 required
                                 id="password"
                                 name="password"
-                                error={formErrors.password !== ''}
+                                error={issues.password !== ''}
                                 type={showPassword ? 'text' : 'password'}
                                 endAdornment={
                                     <InputAdornment position="end">
@@ -134,7 +130,7 @@ export default function LogIn() {
                                 }
                                 label="Password"
                             />
-                            <FormHelperText error id="component-helper-text">{formErrors.password}</FormHelperText>
+                            <FormHelperText error id="component-helper-text">{issues.password}</FormHelperText>
                         </FormControl>
 
                         <Button
