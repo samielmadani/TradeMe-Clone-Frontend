@@ -25,16 +25,8 @@ import Cookies from "js-cookie";
 
 const theme = createTheme();
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
-}
-
-const getProfilePhoto = () => {
-    if (!isLoggedIn()) return ""
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-
-    return `http://localhost:4941/api/v1/users/${userId}/image`
+const loggerCheck = () => {
+    return Cookies.get('UserId') !== undefined && Cookies.get('UserId') !== null
 }
 
 const login = async (email, password) => {
@@ -47,10 +39,6 @@ const login = async (email, password) => {
             Cookies.set('UserToken', response.data.token)
             return response.status;
         })
-        .catch((error) => {
-            console.log(error)
-            return error.response.status;
-        })
 }
 
 export default function LogIn() {
@@ -61,14 +49,11 @@ export default function LogIn() {
     };
 
 
-
-
     React.useEffect(() => {
-        if (isLoggedIn()) {
+        if (loggerCheck()) {
             navigate('/');
         }
     })
-
 
     const [formErrors, setFormErrors] = useState({email: '', password: '', global: ''})
     const [showPassword, setShowPassword] = useState(false)

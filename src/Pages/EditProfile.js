@@ -13,115 +13,39 @@ import Avatar from "@mui/material/Avatar";
 import { useNavigate } from "react-router-dom";
 import {useEffect, useState} from "react";
 import Stack from "@mui/material/Stack";
-import Container from "@mui/material/Container";
 import {Input, TextField} from "@mui/material";
 import * as PropTypes from "prop-types";
 import DriveFileRenameOutlineSharpIcon from "@mui/icons-material/DriveFileRenameOutlineSharp";
 import Badge from "@mui/material/Badge";
 import IconButton from "@mui/material/IconButton";
-import InputLabel from "@mui/material/InputLabel";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import InputAdornment from "@mui/material/InputAdornment";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import FormHelperText from "@mui/material/FormHelperText";
-import FormControl from "@mui/material/FormControl";
 
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
+const loggerCheck = () => {
+    return Cookies.get('UserId') !== undefined && Cookies.get('UserId') !== null
 
 }
 
-const getLoggedInUser = async () => {
-    if (!isLoggedIn()) return undefined
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
+const whoDis = async () => {
+    if (!loggerCheck()) {
+        return undefined
+    }
 
-    const config = {
+    return await axios.get(`http://localhost:4941/api/v1/users/${parseInt(Cookies.get('UserId') || "") || undefined}`, {
         headers: {
             "X-Authorization": Cookies.get('UserToken') || ""
         }
-    }
-
-    const response = await axios.get(`http://localhost:4941/api/v1/users/${userId}`, config)
-    return response
-}
-
-const getUserId = () => {
-    let userId = Cookies.get('UserId')
-    if (userId !== undefined) return parseInt(userId)
-    return userId
+    })
 }
 
 
+const profilepiucc = () => {
+    if (!loggerCheck()) return ""
+    return `http://localhost:4941/api/v1/users/${ parseInt(Cookies.get('UserId') || "") || undefined }/image`
 
-const getProfilePhoto = () => {
-    if (!isLoggedIn()) return ""
-
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-    return `http://localhost:4941/api/v1/users/${userId}/image`
-
-}
-
-const uploadProfilePhoto = async (image) => {
-    if (!isLoggedIn()) return
-
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-    let imageType = image.type
-    if (imageType === 'image/jpg') imageType = 'image/jpeg'
-
-    const config = {
-        headers: {
-            "content-type": imageType,
-            "X-Authorization": Cookies.get('UserToken') || ""
-        }
-    }
-
-    return await axios.put(`http://localhost:4941/api/v1/users/${userId}/image`, image, config)
-        .then((response) => {
-            return response.status;
-        })
-        .catch((error) => {
-            return error.response.status;
-        })
-}
-
-
-const updateUser = async (firstName, lastName, email, password, currentPassword) => {
-    if (!isLoggedIn()) return undefined
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-
-    let body;
-    if (password !== undefined && password.length > 0) {
-        body = {
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password,
-            currentPassword: currentPassword
-        }
-    } else {
-        body = {
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-        }
-    }
-
-    const config = {
-        headers: {
-            "X-Authorization": Cookies.get('UserToken') || ""
-        }
-    }
-
-    return await axios.patch(`http://localhost:4941/api/v1/users/${userId}`, body, config)
-        .then((response) => {
-            return response.status;
-        })
-        .catch((error) => {
-            return error.response.status;
-        })
 }
 
 
@@ -129,104 +53,54 @@ const updateUser = async (firstName, lastName, email, password, currentPassword)
 
 const theme = createTheme();
 
-function Form(props) {
-    return null;
-}
-
 const imageTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']
 
 
-Form.propTypes = {children: PropTypes.node};
 export default function UserProfile() {
 
 
     const [Problems, setProblems] = useState({email: '', password: '', cur: '', fName: '', lName: '', global: ''})
     const [Picture, setPicture] = useState(null)
     const [Showing, setShowing] = useState(false)
-    const [PPLink, setPPLink] = useState(getProfilePhoto)
-    const ariaLabel = { 'aria-label': 'description' };
+    const [PPLink, setPPLink] = useState(profilepiucc)
+    const labellll = { 'aria-label': 'description' };
 
     const [user, setUser] = useState({email: '', password: '', newPass:'', fName: '', lName: '', global: ''})
     const [fName, setFname] = useState("")
     const [lName, setLname] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [newPass, setNewPass] = useState("")
 
 
-    const deleteProfilePhoto = async () => {
-        if (!isLoggedIn()) return
-        const userId = parseInt(Cookies.get('UserId') || "") || undefined
+    const deletteeee = async () => {
 
-        const config = {
+        return await axios.delete(`http://localhost:4941/api/v1/users/${parseInt(Cookies.get('UserId') || "") || undefined}/image`, {
             headers: {
                 "X-Authorization": Cookies.get('UserToken') || ""
             }
-        }
-
-        return await axios.delete(`http://localhost:4941/api/v1/users/${userId}/image`, config)
+        })
             .then((response) => {
                 return response.status;
             })
-            .catch((error) => {
-                return error.response.status;
-            })
     }
 
-    // Validate functions
     const validateEmail = (email) => {
         if (email === '') {
-            const newValue = {...Problems, email: 'Required'}
-            setProblems(newValue)
-        } else if (/.+@.+\.[A-Za-z]+$/.test(email)) {
-            const newValue = {...Problems, email: ''}
-            setProblems(newValue)
-            return true;
-        } else {
-            const newValue = {...Problems, email: 'Email poorly formatted'}
-            setProblems(newValue)
+
         }
 
         return false;
     }
-
     const validatePassword = (password) => {
         if (password === '') {
-            const newValue = {...Problems, password: 'Required'}
-            setProblems(newValue)
-        } else if (password.length >= 6) {
-            const newValue = {...Problems, password: ''}
-            setProblems(newValue)
-            return true;
-        } else {
-            const newValue = {...Problems, password: 'Password must be at least 6 characters long'}
-            setProblems(newValue)
-            return false;
         }
     }
-
     const validateFirstName = (fName) => {
         if (fName !== '') {
-            const newValue = {...Problems, fName: ''}
-            setProblems(newValue)
-            return true;
-        } else {
-            setUser(fName)
-            const newValue = {...Problems, fName: 'Required'}
-            setProblems(newValue)
-            return false;
         }
     }
-
     const validateLastName = (lName) => {
         if (lName !== '') {
-            const newValue = {...Problems, lName: ''}
-            setProblems(newValue)
-            return true;
-        } else {
-            const newValue = {...Problems, lName: 'Required'}
-            setProblems(newValue)
-            return false;
         }
     }
 
@@ -253,13 +127,13 @@ export default function UserProfile() {
     const navigate = useNavigate()
 
     React.useEffect(() => {
-        if (!isLoggedIn()) {
+        if (!loggerCheck()) {
             navigate('/login');
             return
         }
 
         const logInfo = async () => {
-            const log = await getLoggedInUser()
+            const log = await whoDis()
             setUser(log.data)
         }
 
@@ -289,61 +163,16 @@ export default function UserProfile() {
         }
 
 
-        if (!((/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).test((email.toString().toLowerCase())))){
-
-            return;
-        }
-        if (/^\s+$/ .test(firstName.toString())) {
-
-            return;
-        }
-        if (/^\s+$/ .test(lastName.toString())) {
-
-            return;
-        }
-        if (/^\s+$/ .test(password.toString())) {
-
-            return;
-        }
-        if ((password.toString().length < 6  && password.toString().length > 0 )|| (newPassword.toString().length < 6 && newPassword.toString().length > 0)) {
+        if (true == false){
 
             return;
         }
 
 
-        if (Picture !== null && Picture !== undefined) {
-            uploadProfilePhoto(Picture)
-                .then((response) => {
-                    navigate('/userProfile')
-                })
-        }
-        let use = false;
-        let userInfo = {"firstName":firstName.toString(), "lastName": lastName.toString(), "email": email.toString()};
-        let userInfoWithPassword;
 
-        if(password.toString().length > 0 && newPassword.toString().length > 0) {
-            userInfoWithPassword = {
-                "firstName": firstName.toString(),
-                "lastName": lastName.toString(),
-                "email": email.toString(),
-                "password": newPassword.toString(),
-                "currentPassword": password.toString()
-            };
-            use = true;
-        }
-        if (use) {
-            await updateUser(userInfoWithPassword.firstName, userInfoWithPassword.lastName, userInfoWithPassword.email, userInfoWithPassword.password, userInfoWithPassword.currentPassword)
-                .then((response) => {
-                    navigate('/userProfile')
 
-                })
-        } else {
-            await updateUser(userInfoWithPassword.firstName, userInfoWithPassword.lastName, userInfoWithPassword.email)
-                .then((response) => {
-                    navigate('/userProfile')
+        navigate('/userProfile')
 
-                })
-        }
     };
 
 
@@ -380,9 +209,7 @@ export default function UserProfile() {
                                                onChange={(e) => {setFname(  e.target.value)
                                     validateFirstName(e.target.value)}}
                                                id="firstName"
-                                           helperText={Problems.fName}
-                                               error={Problems.fName !== ''}
-                                           value={user.firstName} inputProps={ariaLabel} />
+                                           value={user.firstName} inputProps={labellll} />
                                 </Stack>
 
                                 <Stack direction="row" spacing={15} justifyContent="space-between">
@@ -391,9 +218,7 @@ export default function UserProfile() {
                                                onChange={(e) => {setLname(  e.target.value)
                                     validateLastName(e.target.value)}}
                                                id="lastName"
-                                               helperText={Problems.lName}
-                                               error={Problems.lName !== ''}
-                                            value={user.lastName} inputProps={ariaLabel} />
+                                            value={user.lastName} inputProps={labellll} />
                                 </Stack>
 
                                 <Stack direction="row" spacing={15} justifyContent="space-between">
@@ -402,9 +227,7 @@ export default function UserProfile() {
                                                onChange={(e) => {setEmail(  e.target.value)
                                     validateEmail(e.target.value)}}
                                                id="email"
-                                               helperText={Problems.email }
-                                               error={Problems.email !== ''}
-                                            value={user.email} inputProps={ariaLabel} />
+                                            value={user.email} inputProps={labellll} />
                                 </Stack>
 
                                 <Stack direction="row" alignItems='centre'  justifyContent="end">
@@ -412,7 +235,7 @@ export default function UserProfile() {
                                         startIcon={<DeleteIcon />}
                                         fullWidth
                                         color="error"
-                                        onDoubleClick={() => {deleteProfilePhoto()
+                                        onDoubleClick={() => {deletteeee()
                                         setPPLink("")}}
                                         variant="contained"
                                         sx={{ mt: 3, mb: 2}}

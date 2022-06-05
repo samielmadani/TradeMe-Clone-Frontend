@@ -15,37 +15,25 @@ import Stack from "@mui/material/Stack";
 import Container from "@mui/material/Container";
 
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
-
-}
-
-const getLoggedInUser = async () => {
-    if (!isLoggedIn()) return undefined
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-
-    const config = {
-        headers: {
-            "X-Authorization": Cookies.get('UserToken') || ""
-        }
+    const loggerCheck = () => {
+        return Cookies.get('UserId') !== undefined && Cookies.get('UserId') !== null
     }
 
-    const response = await axios.get(`http://localhost:4941/api/v1/users/${userId}`, config)
-    return response
+const whoDisss = async () => {
+        if (!loggerCheck()) {
+            return undefined
+        }
+
+        return await axios.get(`http://localhost:4941/api/v1/users/${parseInt(Cookies.get('UserId') || "") || undefined}`, {
+            headers: {
+                "X-Authorization": Cookies.get('UserToken') || ""
+            }
+        })
 }
 
-const getUserId = () => {
-    let userId = Cookies.get('UserId')
-    if (userId !== undefined) return parseInt(userId)
-    return userId
-}
-
-const getProfilePhoto = () => {
-    if (!isLoggedIn()) return ""
-
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-    return `http://localhost:4941/api/v1/users/${userId}/image`
+const profpPic = () => {
+    if (!loggerCheck()) return ""
+    return `http://localhost:4941/api/v1/users/${ parseInt(Cookies.get('UserId') || "") || undefined }/image`
 
 }
 
@@ -56,16 +44,16 @@ export default function UserProfile() {
 
     const [user, setUser] = useState({email: '', password: '', fName: '', lName: '', global: ''})
 
-    const navigate = useNavigate()
+    const navvv = useNavigate()
 
     React.useEffect(() => {
-        if (!isLoggedIn()) {
-            navigate('/login');
+        if (!loggerCheck()) {
+            navvv('/login');
             return
         }
 
         const logInfo = async () => {
-            const log = await getLoggedInUser()
+            const log = await whoDisss()
             setUser(log.data)
         }
 
@@ -76,20 +64,17 @@ export default function UserProfile() {
     }, [])
 
     const edit = () => {
-        navigate('/editprofile')
+        navvv('/editprofile')
         return
     }
 
 
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
-    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+
+            };
 
     return (
         <ThemeProvider theme={theme}>
@@ -145,7 +130,7 @@ export default function UserProfile() {
                 </Grid>
                 <Grid xs={4} >
 
-                    <Avatar xs={2}  src={`${getProfilePhoto()}?fit=crop&auto=format`} variant="square" style={{
+                    <Avatar xs={2}  src={`${profpPic()}?fit=crop&auto=format`} variant="square" style={{
                         flex: 1,
                         objectFit: 'cover',
                         width: '100%',

@@ -9,10 +9,7 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import Container from "@mui/material/Container";
 import AdbIcon from "@mui/icons-material/Adb";
 import Link from "@mui/material/Link";
@@ -27,54 +24,43 @@ import Cookies from "js-cookie";
 import axios from "axios";
 
 
-const drawerWidth = 240;
 let pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Profile'];
-let settings = ['Login', 'Register'];
+let listtt = ['Login', 'Register'];
 
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
+const checkLogger = () => {
+   return Cookies.get('UserId') !== undefined && Cookies.get('UserId') !== null
 
 }
+
 const logout = async () => {
 
-    const config = {
+    return await axios.post(`http://localhost:4941/api/v1/users/logout`, {}, {
         headers: {
-            "content-type": "application/json",
             "X-Authorization": Cookies.get('UserToken') || ""
         }
-    }
-    return await axios.post(`http://localhost:4941/api/v1/users/logout`, {}, config)
+    })
         .then((response) => {
             Cookies.remove('UserId')
             Cookies.remove('UserToken')
             return response.status;
         })
-        .catch((error) => {
-            return error.response.status;
-        })
-
 }
-const getProfilePhoto = () => {
-    if (!isLoggedIn()) return ""
-
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
-    return `http://localhost:4941/api/v1/users/${userId}/image`
-
+const userImage = () => {
+    if (!checkLogger()) return ""
+    return `http://localhost:4941/api/v1/users/${ parseInt(Cookies.get('UserId') || "") || undefined }/image`
 }
-const getLoggedInUser = async () => {
-    if (!isLoggedIn()) return undefined
+const whoDis = async () => {
 
-    const userId = parseInt(Cookies.get('UserId') || "") || undefined
+    if (!checkLogger()) {
+        return undefined
+    }
 
-    const config = {
+    return await axios.get(`http://localhost:4941/api/v1/users/${parseInt(Cookies.get('UserId') || "") || undefined}`, {
         headers: {
             "X-Authorization": Cookies.get('UserToken') || ""
         }
-    }
-    const response = await axios.get(`http://localhost:4941/api/v1/users/${userId}`, config)
-    return response
+    })
 
 }
 
@@ -83,65 +69,63 @@ export default function ClippedDrawer() {
 
 
 
-    const [anchorElUser, setAnchorElUser] = useState(null);
+    const [getAnc, SetAnc] = useState(null);
     const [userName, setUserName] = useState("User")
-    const navigater = useNavigate()
+    const navvv = useNavigate()
 
 
 
-        if (isLoggedIn()) {
+        if (checkLogger()) {
             pages = ['Browse All', 'Profile', 'My Auctions', 'Edit Profile']
         } else {
             pages = ['Browse All', 'Login', 'Register']
         }
 
-
-
-    const handleOpenUserMenu = (event) => {
-        if (isLoggedIn()) {
-            settings = ['Profile', 'Logout']
+    const opensmallMenu = (event) => {
+        if (checkLogger()) {
+            listtt = ['Profile', 'Logout']
         } else {
-            settings = ['Login', 'Register']
+            listtt = ['Login', 'Register']
         }
-        setAnchorElUser(event.currentTarget);
+        SetAnc(event.currentTarget);
     };
 
 
-    const handleCloseUserMenu = async (location) => {
-        setAnchorElUser(null);
+    const closerMenu = async (location) => {
+        SetAnc(null);
         if (location === 'Logout') {
             await logout()
-            navigate('login')
+            navvvvy('login')
             return
         }
 
         if (location === 'Browse All') {
-            navigate('')
+            navvvvy('')
             return
         }
 
         if (location === 'Login') {
-            navigate('login')
+            navvvvy('login')
             return
         }
 
         if (location === 'Register') {
-            navigate('register')
+            navvvvy('register')
             return
         }
 
         if (location === 'Profile') {
-            navigate('userProfile')
+            navvvvy('userProfile')
             return
         }
 
         if (location === 'My Auctions') {
-            navigate('myauctions')
+            navvvvy('myauctions')
             return
         }
 
         if (location === 'Edit Profile') {
-            navigate('editProfile')
+            navvvvy('editProfile')
             return
         }
 
@@ -150,13 +134,13 @@ export default function ClippedDrawer() {
 
     };
 
-    const navigate = (location) => {
-        navigater(`/${location.toLowerCase()}`)
+    const navvvvy = (location) => {
+        navvv(`/${location.toLowerCase()}`)
     }
 
     useEffect(() => {
         const getUser = async () => {
-            const response = await getLoggedInUser()
+            const response = await whoDis()
 
             if (response === undefined || response.status !== 200) return
             setUserName("test")
@@ -213,15 +197,15 @@ export default function ClippedDrawer() {
                         </Box>
 
                         <Box sx={{ flexGrow: 0 }}>
-                            <Tooltip title="Open settings">
-                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar src={getProfilePhoto()} />
+                            <Tooltip title="Open">
+                                <IconButton onClick={opensmallMenu} sx={{ p: 0 }}>
+                                    <Avatar src={userImage()} />
                                 </IconButton>
                             </Tooltip>
                             <Menu
                                 sx={{ mt: '45px' }}
                                 id="menu-appbar"
-                                anchorEl={anchorElUser}
+                                anchorEl={getAnc}
                                 anchorOrigin={{
                                     vertical: 'top',
                                     horizontal: 'right',
@@ -231,11 +215,11 @@ export default function ClippedDrawer() {
                                     vertical: 'top',
                                     horizontal: 'right',
                                 }}
-                                open={Boolean(anchorElUser)}
-                                onClose={handleCloseUserMenu}
+                                open={Boolean(getAnc)}
+                                onClose={closerMenu}
                             >
-                                {settings.map((setting) => (
-                                    <MenuItem key={setting} onClick={async () => await handleCloseUserMenu(setting)}>
+                                {listtt.map((setting) => (
+                                    <MenuItem key={setting} onClick={async () => await closerMenu(setting)}>
                                         <Typography textAlign="center">{setting}</Typography>
                                     </MenuItem>
                                 ))}
@@ -247,21 +231,18 @@ export default function ClippedDrawer() {
             <Drawer
                 variant="permanent"
                 sx={{
-                    width: drawerWidth,
+                    width: 240,
                     flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+                    [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
                 }}
             >
                 <Toolbar />
                 <Box sx={{ overflow: 'auto' }}>
                     <List>
-                        {pages.map((text, index) => (
-                            <ListItem key={text} disablePadding onClick={async () => await handleCloseUserMenu(text)}>
+                        {pages.map((a, b) => (
+                            <ListItem key={a} disablePadding onClick={async () => await closerMenu(a)}>
                                 <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
+                                    <ListItemText primary={a} />
                                 </ListItemButton>
                             </ListItem>
                         ))}

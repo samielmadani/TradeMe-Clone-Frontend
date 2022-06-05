@@ -3,7 +3,6 @@ import {useState} from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -12,24 +11,11 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {createTheme, ThemeProvider} from '@mui/material/styles';
 import axios from "axios";
-import {
-    CardActionArea,
-    Chip,
-    InputLabel, Menu,
-    NativeSelect,
-    OutlinedInput,
-    Pagination,
-    Select,
-    TextField
-} from "@mui/material";
+import { CardActionArea, InputLabel, NativeSelect, OutlinedInput,  Pagination, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import * as PropTypes from "prop-types";
-import Cookies from "js-cookie";
 import Avatar from "@mui/material/Avatar";
-import {logDOM} from "@testing-library/react";
-import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
-import Button from "@mui/material/Button";
 
 
 const catss = [
@@ -61,11 +47,11 @@ const catss = [
     "Cars"
 ];
 
-const money = (number) => {
-    return number.toString();
+const money = (int) => {
+    return int.toString();
 }
 
-const getTimeRemaining = (date) => {
+const timmeeee = (date) => {
 
     const end = new Date(Date.parse(date))
     const cur = new Date()
@@ -82,58 +68,32 @@ const getTimeRemaining = (date) => {
     return "closing soon"
 }
 
-const fetchAuctions = async (config) => {
-    const response =  await axios.get(`http://localhost:4941/api/v1/auctions`, { params: config})
-    return response;
+const findAucc = async (cccc) => {
+    return await axios.get(`http://localhost:4941/api/v1/auctions`, { params: cccc})
 }
 
-const displayAmount = 40
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
-
-const sortOptions = [
+const typesss = [
     'Closing soon',
     'Closing late',
-    'Highest bid',
     'Lowest bid',
     'Highest reserve',
     'Lowest reserve',
     'Title ascending',
+    'Highest bid',
     'Title descending',
 ];
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
-
-}
-
-const fetchCategories = async () => {
+const findCattsss = async () => {
     return await axios.get(`http://localhost:4941/api/v1/auctions/categories`)
         .then((response) => {
             return `http://localhost:4941/api/v1/auctions/categories`
         })
-        .catch((error) => {
-            return []
-        })
 }
 
-const fetchImage = async (auctionId) => {
-    return await axios.get(`http://localhost:4941/api/v1/auctions/${auctionId}/image`)
+const findPicc = async (idd) => {
+    return await axios.get(`http://localhost:4941/api/v1/auctions/${idd}/image`)
         .then((response) => {
-            return `http://localhost:4941/api/v1/auctions/${auctionId}/image`
-        })
-        .catch((error) => {
-            return
+            return `http://localhost:4941/api/v1/auctions/${idd}/image`
         })
 }
 
@@ -143,47 +103,22 @@ function AvatarChip(props) {
     return null;
 }
 
-
-
 AvatarChip.propTypes = {
     id: PropTypes.any,
     name: PropTypes.string
 };
 export default function Auctions() {
     const [auctions, setAuctions] = useState([])
-    const [image, setImage] = useState(undefined)
+    const [image, getPicss] = useState(undefined)
     const [categories, setCategories] = useState([])
     const [cats, setCats] = useState([])
-    const [pages, setPages] = useState(3)
+    const [pages, numberrs] = useState(3)
     const [page, setPage] = useState(1)
-    const [sortBy, setSortBy] = useState(sortOptions[0]);
-    const [searchTerm, setSearchTerm] = useState("")
-    const [filters, setFilters] = useState([])
-    const [status, setStatus] = useState("ANY");
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
 
     const navigate = useNavigate()
 
 
-    const handleFilterMenuClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleFilterMenuClose = (event, category) => {
-        setAnchorEl(null)
-        if (!category) return
-
-        const newFiltersRemoved = filters.filter((categoryTemp) => (
-            categoryTemp.categoryId !== category.categoryId
-        ))
-        const newFiltersAdded = [...newFiltersRemoved, category]
-        setPage(1)
-        setFilters(newFiltersAdded)
-        update(1, sortBy, searchTerm, newFiltersAdded)
-    };
-
-   const handleSortChanged = (event) => {
+    const handleSortChanged = (event) => {
         const {
             target: { value },
         } = event;
@@ -198,27 +133,35 @@ export default function Auctions() {
         setSearchTerm(parameter)
     }
 
-    const handleChange = (event, value) => {
-        update(value)
-        setPage(value)
-    };
+    const [sortBy, setSortBy] = useState(typesss[0]);
+    const [searchTerm, setSearchTerm] = useState("")
+    const [allsearchterms, setAllterms] = useState([])
+    const [status, setStatus] = useState("ANY");
 
-    const convertToBackEndSort = (sortByString) => {
-        switch(sortByString) {
+
+    const sortType = (sortttt) => {
+        switch(sortttt) {
             case 'Closing soon':
                 return 'CLOSING_SOON'
+
             case 'Closing late':
                 return "CLOSING_LAST"
-            case 'Highest reserve':
-                return "RESERVE_DESC"
-            case 'Lowest reserve':
-                return "RESERVE_ASC"
+
             case 'Title ascending':
                 return "ALPHABETICAL_ASC"
+
             case 'Title descending':
                 return "ALPHABETICAL_DESC"
+
             case 'Highest bid':
                 return "BIDS_DESC"
+
+            case 'Highest reserve':
+                return "RESERVE_DESC"
+
+            case 'Lowest reserve':
+                return "RESERVE_ASC"
+
             case 'Lowest bid':
                 return "BIDS_ASC"
 
@@ -227,115 +170,64 @@ export default function Auctions() {
         }
     }
 
-    const getAuctions = async (pageNumber, sortByString, search, filter, statusString) => {
-        if (pageNumber == undefined) pageNumber = page
-        if (sortByString == undefined) sortByString = sortBy
-        if (search == undefined) search = searchTerm
-        if (filter == undefined) filter = filters
-        if (statusString == undefined) statusString = status
+    const getAuctions = async (pageNumber, sortttt, search, filter, statusString) => {
+        if (search == undefined) {
+            search = searchTerm
+        }
+
+        if (filter == undefined) {
+            filter = allsearchterms
+        }
+
+        if (statusString == undefined) {
+            statusString = status
+        }
+        if (pageNumber == undefined) {
+            pageNumber = page
+        }
+        if (sortttt == undefined)  {
+            sortttt = sortBy
+        }
 
 
-        let categoryIdsList = []
+        let idss = []
         for (let i=0; i < filter.length; i++) {
-            categoryIdsList.push(filter[i].categoryId)
+            idss.push(filter[i].categoryId)
         }
 
         const config = {
             startIndex: (pageNumber - 1) * 10,
-            count: displayAmount,
-            sortBy: convertToBackEndSort(sortByString),
+            count: 40,
+            sortBy: sortType(sortttt),
             q: search,
-            categoryIds: categoryIdsList,
+            categoryIds: idss,
             status: statusString
         }
-
-        const response = await fetchAuctions(config)
-
-        if (response.status !== 200) return
-
+        const response = await findAucc(config)
+        if (response.status !== 200) {
+            return
+        }
         setAuctions(response.data.auctions)
-        setPages(Math.ceil(response.data.count / displayAmount))
-
-        const categoryResponse = await fetchCategories()
-        setCategories(categoryResponse)
+        numberrs(5)
+        setCategories(await findCattsss())
     }
 
-    const update = (pageNumber, sortByString, search, filter, statusString) => {
-
-        getAuctions(pageNumber, sortByString, search, filter, statusString)
+    const update = (pageNumber, sortttt, search, filter, statusString) => {
+        getAuctions(pageNumber, sortttt, search, filter, statusString)
     }
 
     React.useEffect(() => {
 
-        const handleFilterClick = (category) => {
-            const newFilters = filters.filter((categoryTemp) => (
-                categoryTemp.categoryId === category.categoryId
-            ))
-
-            setFilters(newFilters)
-            update(page, sortBy, searchTerm, newFilters)
-        };
-
-        const handleFilterDelete = (category) => {
-            const newFilters = filters.filter((categoryTemp) => (
-                categoryTemp.categoryId !== category.categoryId
-            ))
-
-            setFilters(newFilters)
-            update(page, sortBy, searchTerm, newFilters)
-        };
-
-
-        const allItems = async () => {
+       const itemss = async () => {
             getAuctions().then((res) => {
                 setAuctions(res.data.auctions)
-
-                setImage(fetchImage(res.data.auctionId));
-
-                setCats(fetchCategories());
-                console.log(fetchCategories())
-
-
-
+                getPicss(findPicc(res.data.auctionId));
+                setCats(findCattsss());
             })
         }
 
-
-
-
-        allItems()
+        itemss()
     }, [setAuctions])
-
-    const getCategory = (categoryId) => {
-        let messageReturn = ''
-        if (cats !== undefined) {
-            const found = cats.find(e => e.categoryId === categoryId);
-            if (found != undefined) {
-                messageReturn = found.name
-            }
-        }
-
-        return messageReturn;
-    }
-
-    const handleFilterClick = (category) => {
-        const newFilters = filters.filter((categoryTemp) => (
-            categoryTemp.categoryId === category.categoryId
-        ))
-
-        setFilters(newFilters)
-        update(page, sortBy, searchTerm, newFilters)
-    };
-
-    const handleFilterDelete = (category) => {
-        const newFilters = filters.filter((categoryTemp) => (
-            categoryTemp.categoryId !== category.categoryId
-        ))
-
-        setFilters(newFilters)
-        update(page, sortBy, searchTerm, newFilters)
-    };
-
 
 
     const items = () => auctions.map((auction,) =>
@@ -347,16 +239,16 @@ export default function Auctions() {
                         <Grid item xs={12}>
                             <div style={{display: 'flex',  justifyContent: 'space-between'}}>
                                 <p>{catss[auction.categoryId]}</p>
-                                <p>{getTimeRemaining(auction.endDate)}</p>
+                                <p>{timmeeee(auction.endDate)}</p>
                             </div>
                         </Grid>
 
-                        <Typography gutterBottom variant="h5" component="div">
+                        <Typography  variant="h5" >
                             {auction.title}
                         </Typography>
 
                         <div>
-                            <Typography variant="body2" color="text.secondary" >
+                            <Typography >
                                 {auction.description}
                             </Typography>
                             <div>
@@ -369,17 +261,16 @@ export default function Auctions() {
                     <CardActions>
                         <div style={{width: '100%', display: 'flex', justifyContent: 'space-between'}}>
                             <div>
-                                <p style={{padding: 0, margin: 0, fontSize: 10}}>
-                                    {auction.highestBid == null? "Starting Bid" : "Current Bid"}
-                                </p>
-                                <p style={{padding: 0, margin: 0, fontSize: 16}}>
+                                <p >
+                                    {auction.highestBid == null? "Starting Bid" : "Current Bid"}:
                                     ${auction.highestBid == null? "0" : money(auction.highestBid)}
                                 </p>
-                                <p style={{padding: 0, margin: 0, fontSize: 10}}>
-                                    {auction.highestBid >= auction.reserve ? "Reserve (met)" : "Reserve (not met)"}
-                                </p>
-                                <p style={{padding: 0, margin: 0, fontSize: 16}}>
+                                <p >
+                                    {auction.highestBid >= auction.reserve ? "Reserve (met)" : "Reserve (not met)"}:
                                     ${auction.reserve == undefined || auction.reserve == null? "0" : money(auction.reserve)}
+                                </p>
+                                <p >
+
                                 </p>
                             </div>
 
@@ -401,11 +292,6 @@ export default function Auctions() {
         </Grid>
     )
 
-
-
-
-
-
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -413,14 +299,12 @@ export default function Auctions() {
                 <Box>
 
                     <Container  style={{
-                        display: 'flex',
                         justifyContent: 'center',
-                        alignItems: 'center',
                     }} maxWidth={"lg"}>
                         <Stack style={{ width: '100%', display: 'flex', justifyContent: 'center'}}>
                             <TextField fullWidth label="Search" id="search" onChange={handleSearchChange}/>
 
-                            <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={pages} page={page} onChange={handleChange}  />
+                            <Pagination style={{ width: '100%', display: 'flex', justifyContent: "inherit"}} count={Math.floor(auctions.length/ 10 )+1}  />
 
                         </Stack>
 
@@ -441,20 +325,13 @@ export default function Auctions() {
                             <InputLabel id="filter">Sorting</InputLabel>
                             <NativeSelect
                                 labelId="filter"
-                                id="demo-multiple-name"
                                 size="small"
                                 value={sortBy}
                                 onChange={handleSortChanged}
-                                input={<OutlinedInput label="Sort By" />}
+                                input={<OutlinedInput />}
                             >
-                                {sortOptions.map((by) => (
-                                    <option
-                                        key={by}
-                                        value={by}
-                                    >
-                                        {by}
-                                    </option>
-                                ))}
+                                {typesss.map((typeee) => (
+                                    <option key={typeee} value={typeee}>{typeee}</option>))}
                             </NativeSelect>
                         </FormControl>
 
@@ -464,7 +341,6 @@ export default function Auctions() {
                 <Container sx={{ py: 8 }} maxWidth="lg">
                     {/* End hero unit */}
                     <Grid container  rowSpacing={1}>
-
 
                                 {items()}
 

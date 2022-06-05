@@ -2,7 +2,6 @@ import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
@@ -44,24 +43,15 @@ const catss = [
     "Cars"
 ];
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
-
-}
-
 const getBids = async (id) => {
     const response =  await axios.get(`http://localhost:4941/api/v1/auctions/${id}/bids`)
     return response.data;
 }
 
-const fetchAuction = async (id) => {
+const findAucccc = async (id) => {
     return await axios.get(`http://localhost:4941/api/v1/auctions/${id}`)
         .then((response) => {
             return response.data;
-        })
-        .catch((error) => {
-            return error.response;
         })
 }
 
@@ -73,32 +63,21 @@ export default function UserProfile() {
 
     const [auction, setAuction] = useState([])
     const [bids, setBids] = useState([])
-
     const [time, setTime] = useState("")
     const [day, setDay] = useState("")
-
-
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-    };
 
     React.useEffect(() => {
 
         const array = window.location.pathname.split("/")
-        const getAucId = parseInt(array[2]);
+        const idd = parseInt(array[2]);
 
-        fetchAuction(getAucId)
+        findAucccc(idd)
             .then((res) => {
-
                 const list = res.endDate.split("T")
                 setDay(list[0])
                 setTime(list[1].split(".")[0])
-
                 setAuction(res);
-
-                getBids(getAucId).then((res) => {
+                getBids(idd).then((res) => {
                     setBids(res);
                     console.log(res)
                 }, (error) => {

@@ -28,13 +28,15 @@ import DriveFileRenameOutlineSharpIcon from '@mui/icons-material/DriveFileRename
 const theme = createTheme();
 const imageTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif']
 
-const isLoggedIn = () => {
-    const userId = Cookies.get('UserId')
-    return userId !== undefined && userId !== null
+const loggerCheck = () => {
+    return Cookies.get('UserId') !== undefined && Cookies.get('UserId') !== null
+
 }
 
-const uploadProfilePhoto = async (image) => {
-    if (!isLoggedIn()) return
+const putimage = async (image) => {
+    if (!loggerCheck()) {
+        return
+    }
 
     const userId = parseInt(Cookies.get('UserId') || "") || undefined
     let imageType = image.type
@@ -66,10 +68,6 @@ const login = async (email, password) => {
             Cookies.set('UserToken', response.data.token)
             return response.status;
         })
-        .catch((error) => {
-            console.log(error)
-            return error.response.status;
-        })
 }
 
 const register = async (firstName, lastName, email, password) => {
@@ -83,7 +81,6 @@ const register = async (firstName, lastName, email, password) => {
             return response.status;
         })
         .catch((error) => {
-            console.log(error)
             return error.response.status;
         })
 }
@@ -92,7 +89,7 @@ const register = async (firstName, lastName, email, password) => {
 export default function Register({userId, setUserId}) {
 
     React.useEffect(() => {
-        if (isLoggedIn()) {
+        if (loggerCheck()) {
             navigate('/');
         }
     })
@@ -141,7 +138,7 @@ export default function Register({userId, setUserId}) {
         }
 
         if (profilePhoto !== null && profilePhoto !== undefined) {
-            const uploadImageResponse = await uploadProfilePhoto(profilePhoto)
+            const uploadImageResponse = await putimage(profilePhoto)
             if (uploadImageResponse !== 200 && uploadImageResponse !== 201) {
                 const newValue = {...formErrors, global: 'Something went wrong'}
                 setFormErrors(newValue)
